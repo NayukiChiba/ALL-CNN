@@ -74,25 +74,25 @@ MNIST-CNN/
   - [x] 编写 `README.md`（项目说明、安装、快速开始）
   - [x] 更新 `.gitignore`（checkpoints/, outputs/, datasets/, logs/）
 
-- [ ] **配置模块 `config/`**
-  - [ ] `paths.py` — 项目路径常量（基于 PROJECT_ROOT 推导）
-  - [ ] `default.py` — 所有超参数默认值（batch_size, lr, epochs, model 结构, 设备等）
-  - [ ] `settings.py` — 合并默认值 + 命令行参数覆盖（argparse）
-  - [ ] `__init__.py` — 统一导出
+- [x] **配置模块 `config/`**
+  - [x] `paths.py` — 项目路径常量（基于 PROJECT_ROOT 推导）
+  - [x] `default.py` — 所有超参数默认值（batch_size, lr, epochs, model 结构, 设备等）
+  - [x] `settings.py` — 合并默认值 + 命令行参数覆盖（argparse）
+  - [x] `__init__.py` — 统一导出
 
-- [ ] **主入口 `main.py`**
-  - [ ] 子命令分发：`train` / `eval` / `infer`
-  - [ ] 全局参数：`--config`、`--device`、`--seed`
-  - [ ] 各子命令独立参数解析与调度
+- [x] **主入口 `main.py`**
+  - [x] 子命令分发：`train` / `eval` / `infer`
+  - [x] 全局参数：`--config`、`--device`、`--seed`
+  - [x] 各子命令独立参数解析与调度
 
 ---
 
 ### 数据模块 `src/data/`
 
-- [ ] **数据集封装**
-  - [ ] `dataset.py` — `torch.utils.data.Dataset` 子类，封装 MNIST
-  - [ ] 支持自动下载到 `datasets/` 目录
-  - [ ] 返回 `(image, label)` 元组
+- [X] **数据集封装**
+  - [X] `dataset.py` — `torch.utils.data.Dataset` 子类，封装 MNIST
+  - [X] 支持自动下载到 `datasets/` 目录
+  - [X] 返回 `(image, label)` 元组
 
 - [ ] **预处理与数据增强**
   - [ ] `transform.py` — `ToTensor()` + `Normalize((0.1307,), (0.3081,))`

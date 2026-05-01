@@ -1,208 +1,178 @@
 """
 config/settings.py
 
-merge the default parameters and the args parameters in command line arguments.
+Argument definitions and parsing. All CLI arguments are defined here;
+main.py only handles dispatch.
 
-function:
-- define argparse parser based on the default_params.py
-- the default values are automatically aligned
-- the parameters passed in through the command line override the default values
-- Path parameters can override the default directory form the command line.
-
-usage instructions:
-    python main.py                           # 使用全部默认值
-    python main.py --epochs 50 --lr 0.0005   # 覆盖训练参数
-    python main.py --mode eval               # 切换模式
-
-use it in code:
+Usage:
     from config.settings import getSettings
     args = getSettings()
-    batchSize = args.batch_size
 """
 
 import argparse
 
-from config.default_params import (
-    DataParams,
-    DefaultParams,
-    ModelParams,
-    TrainingParams,
-)
-from config.paths import (
-    CHECKPOINTS_DIR,
-    DATASETS_DIR,
-    LOGS_DIR,
-    OUTPUTS_DIR,
-)
+from config.default_params import DataParams, DefaultParams, ModelParams, TrainingParams
+from config.paths import CHECKPOINTS_DIR, DATASETS_DIR, LOGS_DIR, OUTPUTS_DIR
+
+# ===================== Shared argument groups =====================
 
 
-def buildParser() -> argparse.ArgumentParser:
-    """
-    build the argparse parser based on the default parameters and paths.
-
-
-    """
-    parser = argparse.ArgumentParser(
-        description="MNIST-CNN: A simple CNN for MNIST classification",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    # running mode
+def _addGeneralArgs(parser):
+    """General: seed, device"""
     parser.add_argument(
-        "--mode",
-        type=str,
-        default="train",
-        choices=["train", "eval", "inference"],
-        help="the running mode of the program",
+        "--seed", type=int, default=DefaultParams.SEED, help="random seed"
+    )
+    parser.add_argument(
+        "--device", type=str, default=DefaultParams.DEVICE, help="compute device"
     )
 
-    # general parameters
-    general = parser.add_argument_group("General Parameters")
-    general.add_argument(
-        "--seed",
-        type=int,
-        default=DefaultParams.SEED,
-        help="the random seed for reproducibility",
-    )
-    general.add_argument(
-        "--device",
-        type=str,
-        default=DefaultParams.DEVICE,
-        help="the device to run the model on",
-    )
 
-    # data parameters
-    data = parser.add_argument_group("Data Parameters")
-    data.add_argument(
-        "--batch_size",
-        type=int,
-        default=DataParams.BATCH_SIZE,
-        help="the batch size for training and evaluation",
+def _addDataArgs(parser):
+    """Data: batch size, workers, val split, augmentation"""
+    parser.add_argument(
+        "--batch-size", type=int, default=DataParams.BATCH_SIZE, help="batch size"
     )
-    data.add_argument(
-        "--num_workers",
+    parser.add_argument(
+        "--num-workers",
         type=int,
         default=DataParams.NUM_WORKERS,
-        help="the number of workers for data loading",
+        help="number of DataLoader workers",
     )
-    data.add_argument(
-        "--val_split",
+    parser.add_argument(
+        "--val-split",
         type=float,
         default=DataParams.VAL_SPLIT,
-        help="the validation split ratio",
+        help="validation split ratio",
     )
-    data.add_argument(
-        "--no-augment",
-        action="store_true",
-        help="禁用数据增强（默认开启）",
+    parser.add_argument(
+        "--no-augment", action="store_true", help="disable data augmentation"
     )
 
-    # model parameters
-    model = parser.add_argument_group("Model Parameters")
-    model.add_argument(
+
+def _addModelArgs(parser):
+    """Model: conv channels, FC size, dropout"""
+    parser.add_argument(
         "--conv-channels",
         type=int,
         nargs="+",
         default=ModelParams.CONV_CHANNELS,
-        help="the number of channels for each convolutional layer",
+        help="conv layer output channels",
     )
-    model.add_argument(
-        "--fc-hidden-sizes",
+    parser.add_argument(
+        "--fc-hidden-size",
         type=int,
         default=ModelParams.FC_HIDDEN_SIZE,
-        help="the number of hidden units for each fully connected layer",
+        help="FC hidden layer size",
     )
-
-    model.add_argument(
+    parser.add_argument(
         "--dropout-rate",
         type=float,
         default=ModelParams.DROPOUT_RATE,
-        help="the dropout rate for regularization",
+        help="dropout rate",
     )
 
-    # training parameters
-    training = parser.add_argument_group("Training Parameters")
-    training.add_argument(
-        "--epochs",
-        type=int,
-        default=TrainingParams.EPOCHS,
-        help="the number of epochs to train the model",
-    )
-    training.add_argument(
-        "--lr",
-        type=float,
-        default=TrainingParams.LEARNING_RATE,
-        help="the learning rate for the optimizer",
-    )
 
-    training.add_argument(
+def _addTrainingArgs(parser):
+    """Training: epochs, lr, weight decay, scheduler"""
+    parser.add_argument(
+        "--epochs", type=int, default=TrainingParams.EPOCHS, help="number of epochs"
+    )
+    parser.add_argument(
+        "--lr", type=float, default=TrainingParams.LEARNING_RATE, help="learning rate"
+    )
+    parser.add_argument(
         "--weight-decay",
         type=float,
         default=TrainingParams.WEIGHT_DECAY,
-        help="the weight decay for regularization",
+        help="weight decay (L2)",
     )
-    training.add_argument(
+    parser.add_argument(
         "--lr-factor",
         type=float,
         default=TrainingParams.LR_FACTOR,
-        help="learning rate reduction factor",
+        help="LR reduction factor",
     )
-    training.add_argument(
+    parser.add_argument(
         "--lr-patience",
         type=int,
         default=TrainingParams.LR_PATIENCE,
-        help="number of epochs to wait for improvement",
+        help="LR scheduler patience",
     )
-    training.add_argument(
-        "--lr-min",
-        type=float,
-        default=TrainingParams.LR_MIN,
-        help="minimum learning rate",
+    parser.add_argument(
+        "--lr-min", type=float, default=TrainingParams.LR_MIN, help="minimum LR"
     )
 
-    # paths parameters
-    pathGroup = parser.add_argument_group("Path Parameters")
-    pathGroup.add_argument(
-        "--datasets_dir",
-        type=str,
-        default=str(DATASETS_DIR),
-        help="the directory for datasets",
+
+def _addPathArgs(parser):
+    """Paths: datasets, checkpoints, logs, outputs"""
+    parser.add_argument(
+        "--data-dir", type=str, default=str(DATASETS_DIR), help="dataset directory"
     )
-    pathGroup.add_argument(
-        "--checkpoints_dir",
+    parser.add_argument(
+        "--checkpoint-dir",
         type=str,
         default=str(CHECKPOINTS_DIR),
-        help="the directory for model checkpoints",
+        help="checkpoint directory",
     )
-    pathGroup.add_argument(
-        "--outputs_dir",
-        type=str,
-        default=str(OUTPUTS_DIR),
-        help="the directory for outputs",
+    parser.add_argument(
+        "--log-dir", type=str, default=str(LOGS_DIR), help="log directory"
     )
-    pathGroup.add_argument(
-        "--logs_dir", type=str, default=str(LOGS_DIR), help="the directory for logs"
+    parser.add_argument(
+        "--output-dir", type=str, default=str(OUTPUTS_DIR), help="output directory"
+    )
+
+
+# ===================== Main parser with subcommands =====================
+
+
+def buildParser() -> argparse.ArgumentParser:
+    """Build the argument parser with train/eval/infer subcommands"""
+    parser = argparse.ArgumentParser(
+        description="MNIST-CNN: CNN for handwritten digit recognition",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(dest="command", help="available subcommands")
+
+    # ---- train ----
+    trainParser = subparsers.add_parser("train", help="train the model")
+    _addGeneralArgs(trainParser)
+    _addDataArgs(trainParser)
+    _addModelArgs(trainParser)
+    _addTrainingArgs(trainParser)
+    _addPathArgs(trainParser)
+    trainParser.add_argument(
+        "--resume", type=str, default=None, help="resume from checkpoint path"
+    )
+
+    # ---- eval ----
+    evalParser = subparsers.add_parser("eval", help="evaluate the model")
+    _addGeneralArgs(evalParser)
+    _addDataArgs(evalParser)
+    _addPathArgs(evalParser)
+    evalParser.add_argument(
+        "--checkpoint", type=str, required=True, help="checkpoint path for evaluation"
+    )
+
+    # ---- infer ----
+    inferParser = subparsers.add_parser("infer", help="run inference on an image")
+    _addGeneralArgs(inferParser)
+    _addModelArgs(inferParser)
+    _addPathArgs(inferParser)
+    inferParser.add_argument(
+        "--image", type=str, required=True, help="input image path"
+    )
+    inferParser.add_argument(
+        "--checkpoint", type=str, required=True, help="checkpoint path for inference"
+    )
+    inferParser.add_argument(
+        "--top-k", type=int, default=3, help="return top-K predictions"
     )
 
     return parser
 
 
 def getSettings(argv=None) -> argparse.Namespace:
-    """
-    get the settings from the command line arguments.
-    Args:
-        argv: the command line arguments, if None, use sys.argv
-    Returns:
-        argparse.Namespace: the settings from the command line arguments
-    """
+    """Parse CLI arguments and return settings namespace"""
     parser = buildParser()
     args = parser.parse_args(argv)
-    # --no-augment is a boolean flag, if it is set, then args.augment is False, otherwise it is True
-    args.augment = not args.no_augment
     return args
-
-
-if __name__ == "__main__":
-    settings = getSettings()
-    for key, value in vars(settings).items():
-        print(f"{key}: {value}")

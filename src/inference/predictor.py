@@ -125,10 +125,6 @@ class Predictor:
             ]
         )
 
-        # Store normalization params for de-normalization in display
-        self.normalization_mean = DataParams.MNIST_MEAN[0]
-        self.normalization_std = DataParams.MNIST_STD[0]
-
     # ================================================================
     # Public API
     # ================================================================

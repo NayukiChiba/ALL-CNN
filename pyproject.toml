@@ -45,6 +45,7 @@ authors = [
 
 # 运行时依赖（留空，按项目需要添加）
 dependencies = [
+    "tensorboard>=2.20.0",
     "torch>=2.11.0",
     "torchvision>=0.26.0",
     "tqdm>=4.67.3",

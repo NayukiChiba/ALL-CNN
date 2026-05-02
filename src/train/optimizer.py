@@ -82,6 +82,5 @@ def createScheduler(
         factor=factor,  # lr = lr * factor on plateau
         patience=patience,  # wait this many stagnant epochs
         min_lr=min_lr,  # floor
-        verbose=True,  # print a message when lr is reduced
     )
     return scheduler

@@ -33,7 +33,7 @@ CHECKPOINTS_DIR = ROOT_DIR / "checkpoints"
 OUTPUTS_DIR = ROOT_DIR / "outputs"
 
 # logs directory
-LOGS_DIR = ROOT_DIR / "logs"
+LOGS_DIR = OUTPUTS_DIR / "logs"
 
 # visualizations directory
 VISUALIZATIONS_DIR = ROOT_DIR / "visualizations"

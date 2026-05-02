@@ -33,7 +33,7 @@ def createModel(
     """
     model = MNISTCNN(
         conv_channels=conv_channels,
-        hidden_size=hidden_size,
+        fc_hidden_size=hidden_size,
         dropout=dropout,
     )
     model = model.to(device)

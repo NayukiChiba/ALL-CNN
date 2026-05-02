@@ -23,7 +23,7 @@ from src.train.checkpoint import saveCheckpoint
 
 
 @pytest.fixture(scope="module")
-def checkpoint_path() -> str:
+def checkpoint_path():
     """Create a temporary checkpoint with a trained-looking model.
 
     We save an untrained MNISTCNN with random weights. This is enough

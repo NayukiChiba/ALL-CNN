@@ -36,21 +36,21 @@ from config.settings import getSettings
 
 def runTrain(args: argparse.Namespace) -> None:
     """Train subcommand — delegates to scripts/train.py."""
-    from scripts.train import trainRun
+    from scripts.train import run as trainRun
 
     trainRun(args)
 
 
 def runEval(args: argparse.Namespace) -> None:
     """Eval subcommand — delegates to scripts/eval.py."""
-    from scripts.eval import evalRun
+    from scripts.eval import run as evalRun
 
     evalRun(args)
 
 
 def runInference(args: argparse.Namespace) -> None:
     """Inference subcommand — delegates to scripts/infer.py."""
-    from scripts.infer import inferRun
+    from scripts.infer import run as inferRun
 
     inferRun(args)
 

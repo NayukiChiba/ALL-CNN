@@ -22,6 +22,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from config.default_params import DefaultParams
+
 # ================================================================
 # Core functions
 # ================================================================
@@ -31,7 +33,7 @@ from torch.utils.data import DataLoader
 def gatherPredictions(
     model: nn.Module,
     dataloader: DataLoader,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Run a full forward pass over the DataLoader and collect all outputs.
@@ -259,7 +261,7 @@ def evaluateModel(
     model: nn.Module,
     dataloader: DataLoader,
     criterion: nn.Module | None = None,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
     class_names: list[str] | None = None,
     num_classes: int = 10,
 ) -> dict:

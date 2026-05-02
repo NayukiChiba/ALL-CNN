@@ -27,6 +27,8 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
+from config.default_params import DefaultParams
+
 
 def saveCheckpoint(
     model: nn.Module,
@@ -90,7 +92,7 @@ def loadCheckpoint(
     filepath: str | Path,
     model: nn.Module,
     optimizer: torch.optim.Optimizer | None = None,
-    device: str = "cpu",
+    device: str = DefaultParams.DEVICE,
 ) -> tuple[int, dict[str, float]]:
     """
     Load a checkpoint from disk.

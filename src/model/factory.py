@@ -10,6 +10,7 @@ Usage:
 
 import torch.nn as nn
 
+from config.default_params import DefaultParams
 from src.model.cnn import MNISTCNN
 
 
@@ -17,7 +18,7 @@ def createModel(
     conv_channels: list[int] = None,
     hidden_size: int = 128,
     dropout: float = 0.5,
-    device: str = "cpu",
+    device: str = DefaultParams.DEVICE,
 ) -> nn.Module:
     """
     Build MNISTCNN and move to the specified device.

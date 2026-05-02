@@ -33,7 +33,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from config.default_params import DataParams
+from config.default_params import DataParams, DefaultParams
 from config.paths import BEST_MODEL_PATH
 from src.model.cnn import MNISTCNN
 from src.train.checkpoint import loadCheckpoint
@@ -54,7 +54,7 @@ class Predictor:
     def __init__(
         self,
         checkpoint_path: str | Path,
-        device: str = "cpu",
+        device: str = DefaultParams.DEVICE,
         conv_channels: list[int] | None = None,
         hidden_size: int = 128,
         dropout: float = 0.5,
@@ -373,7 +373,7 @@ class Predictor:
 def predictImage(
     image: Image.Image | np.ndarray | torch.Tensor | str | Path,
     checkpoint_path: str | Path = BEST_MODEL_PATH,
-    device: str = "cpu",
+    device: str = DefaultParams.DEVICE,
     top_k: int = 5,
 ) -> dict:
     """

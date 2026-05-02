@@ -15,6 +15,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from config.default_params import DefaultParams
+
 
 def trainEpoch(
     model: nn.Module,
@@ -22,7 +24,7 @@ def trainEpoch(
     criterion: nn.Module,
     optimizer: torch.optim.Optimizer,
     epoch: int,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
 ) -> tuple[float, float]:
     """
     Run a single epoch of training over the full training DataLoader.
@@ -152,7 +154,7 @@ def validateEpoch(
     dataloader: DataLoader,
     criterion: nn.Module,
     epoch: int,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
 ) -> tuple[float, float]:
     """
     Run a single epoch of validation over the full validation DataLoader.

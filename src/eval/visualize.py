@@ -37,6 +37,7 @@ from torch.utils.data import DataLoader
 # When the user wants to show the plot, we temporarily switch back.
 matplotlib.use("Agg")
 
+from config.default_params import DefaultParams
 from config.paths import VISUALIZATIONS_DIR
 
 # ================================================================
@@ -475,7 +476,7 @@ def plotErrorGrid(
 def gatherErrorSamples(
     model: nn.Module,
     dataloader: DataLoader,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
     max_errors: int = 100,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
@@ -557,7 +558,7 @@ def generateEvaluationPlots(
     model: nn.Module,
     dataloader: DataLoader,
     history: dict,
-    device: str = "cuda",
+    device: str = DefaultParams.DEVICE,
     output_dir: str | Path | None = None,
     class_names: list[str] | None = None,
 ) -> dict[str, Path]:

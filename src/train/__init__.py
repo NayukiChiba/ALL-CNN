@@ -1,5 +1,6 @@
 from src.train.checkpoint import loadCheckpoint, saveCheckpoint
 from src.train.engine import trainEpoch, validateEpoch
+from src.train.logger import TrainLogger
 from src.train.loss import createLossFunction
 from src.train.optimizer import createOptimizer, createScheduler
 
@@ -11,4 +12,5 @@ __all__ = [
     "validateEpoch",
     "saveCheckpoint",
     "loadCheckpoint",
+    "TrainLogger",
 ]

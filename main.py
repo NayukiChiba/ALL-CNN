@@ -12,8 +12,8 @@ Responsibility:
 Usage:
     python main.py [global args] <subcommand> [subcommand args]
     python main.py --device cuda --seed 42 train --epochs 50
-    python main.py --config my_config.yaml eval --checkpoint best.pth
-    python main.py infer --image test.png --checkpoint best.pth
+    python main.py eval --checkpoint checkpoints/best_model.pth
+    python main.py infer --image test.png --checkpoint checkpoints/best_model.pth
 """
 
 import argparse
@@ -35,81 +35,24 @@ from config.settings import getSettings
 
 
 def runTrain(args: argparse.Namespace) -> None:
-    """
-    Train subcommand.
+    """Train subcommand — delegates to scripts/train.py."""
+    from scripts.train import trainRun
 
-    Orchestrates the full training pipeline:
-      - build DataLoaders (train / val)
-      - build CNN model
-      - set up optimizer + scheduler + loss
-      - run training loop with checkpoint saving
-
-    Args:
-        args: argparse.Namespace containing all settings from CLI + defaults.
-              Relevant fields used here:
-                args.epochs        — number of training epochs
-                args.lr            — initial learning rate
-                args.device        — "cuda" or "cpu"
-                args.batch_size    — batch size for DataLoader
-                args.resume        — checkpoint path to resume from (or None)
-                args.checkpoint_dir — directory to save checkpoints
-                args.log_dir       — directory for TensorBoard logs
-                args.no_augment    — flag to disable data augmentation
-                args.seed          — random seed (already applied in main)
-    """
-    print("=" * 60)
-    print(f"Training | epochs={args.epochs} lr={args.lr} device={args.device}")
-    print("=" * 60)
-    # TODO: from src.train.engine import train; train(args)
+    trainRun(args)
 
 
 def runEval(args: argparse.Namespace) -> None:
-    """
-    Eval subcommand.
+    """Eval subcommand — delegates to scripts/eval.py."""
+    from scripts.eval import evalRun
 
-    Loads a trained checkpoint and runs evaluation on the test set:
-      - build test DataLoader
-      - load model weights from checkpoint
-      - compute accuracy, confusion matrix, per-class metrics
-      - generate evaluation report and visualizations
-
-    Args:
-        args: argparse.Namespace.
-              Relevant fields:
-                args.checkpoint — path to the .pth checkpoint (required)
-                args.device     — "cuda" or "cpu"
-                args.batch_size — batch size for evaluation
-                args.data_dir   — root directory for MNIST dataset
-                args.output_dir — directory to save evaluation results
-    """
-    print("=" * 60)
-    print(f"Evaluating | checkpoint={args.checkpoint} device={args.device}")
-    print("=" * 60)
-    # TODO: from src.eval.metrics import evaluate; evaluate(args)
+    evalRun(args)
 
 
 def runInference(args: argparse.Namespace) -> None:
-    """
-    Inference subcommand.
+    """Inference subcommand — delegates to scripts/infer.py."""
+    from scripts.infer import inferRun
 
-    Runs prediction on a single input image:
-      - load model weights from checkpoint
-      - preprocess input image (resize, normalize)
-      - run forward pass
-      - print top-K predictions with confidence scores
-
-    Args:
-        args: argparse.Namespace.
-              Relevant fields:
-                args.image      — path to the input image (required)
-                args.checkpoint — path to the .pth checkpoint (required)
-                args.top_k      — number of top predictions to return
-                args.device     — "cuda" or "cpu"
-    """
-    print("=" * 60)
-    print(f"Inference | image={args.image} checkpoint={args.checkpoint}")
-    print("=" * 60)
-    # TODO: from src.inference.predictor import predict; predict(args)
+    inferRun(args)
 
 
 # ============================================================================

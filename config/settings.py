@@ -163,13 +163,22 @@ def buildParser() -> argparse.ArgumentParser:
     evalParser.add_argument(
         "--checkpoint", type=str, required=True, help="checkpoint path for evaluation"
     )
+    evalParser.add_argument(
+        "--no-visualize",
+        action="store_true",
+        help="skip generating visualization plots",
+    )
 
     # ---- infer ----
     inferParser = subparsers.add_parser("infer", help="run inference on an image")
     _addModelArgs(inferParser)
     _addPathArgs(inferParser)
+    inferParser.add_argument("--image", type=str, default=None, help="input image path")
     inferParser.add_argument(
-        "--image", type=str, required=True, help="input image path"
+        "--image-dir",
+        type=str,
+        default=None,
+        help="directory of images for batch inference",
     )
     inferParser.add_argument(
         "--checkpoint", type=str, required=True, help="checkpoint path for inference"

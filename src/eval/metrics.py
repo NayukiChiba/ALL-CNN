@@ -139,7 +139,7 @@ def computeConfusionMatrix(
         stacked.float(),
         bins=num_classes,
         range=[0, num_classes - 1, 0, num_classes - 1],
-    ).histogram.long()
+    ).hist.long()
 
     return confusion_matrix  # (num_classes, num_classes)
 

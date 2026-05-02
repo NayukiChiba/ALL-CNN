@@ -94,16 +94,16 @@ MNIST-CNN/
   - [X] 支持自动下载到 `datasets/` 目录
   - [X] 返回 `(image, label)` 元组
 
-- [ ] **预处理与数据增强**
-  - [ ] `transform.py` — `ToTensor()` + `Normalize((0.1307,), (0.3081,))`
-  - [ ] 训练集可选增强：`RandomAffine`(±10°旋转, ±10%平移)
-  - [ ] 验证/测试集仅归一化
-  - [ ] 从 config 读取增强开关
+- [X] **预处理与数据增强**
+  - [x] `transform.py` — `ToTensor()` + `Normalize((0.1307,), (0.3081,))`
+  - [x] 训练集可选增强：`RandomAffine`(±10°旋转, ±10%平移)
+  - [x] 验证/测试集仅归一化
+  - [x] 从 config 读取增强开关
 
-- [ ] **DataLoader 构建**
-  - [ ] `loader.py` — 构建 train/val/test 三个 DataLoader
-  - [ ] 支持 `num_workers`、`pin_memory` 配置
-  - [ ] 验证集从训练集按比例切分
+- [x] **DataLoader 构建**
+  - [x] `loader.py` — 构建 train/val/test 三个 DataLoader
+  - [x] 支持 `num_workers`、`pin_memory` 配置
+  - [x] 验证集从训练集按比例切分
 
 ---
 

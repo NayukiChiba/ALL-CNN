@@ -63,6 +63,12 @@ MNIST-CNN/
 
 ---
 
+## 模型架构图
+
+![CNN 架构数据流图](/visualizations/architecture_diagram.png)
+
+---
+
 ## 模块职责表
 
 | 模块 | 职责 | 关键入口 |

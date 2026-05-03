@@ -144,34 +144,29 @@ def evaluateModel(model, dataloader, criterion=None, device=None):
 
 双子图布局：左图显示 train + val 损失曲线，右图显示 train + val 准确率曲线。最佳 epoch 用虚线标注：
 
-```
-Loss ────────          Accuracy ────────
-│ \  train             │    ┌─ train
-│  \___ val            │  ┌─┘  val
-│                      │ ┌┘
-│   · best epoch       │┌┘  · best epoch
-└──────────── epoch    └──────────── epoch
-```
+![训练曲线](/visualizations/training_curves.png)
 
 ### 混淆矩阵热力图：plotConfusionMatrix
 
 [visualize.py:192-320](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L192-L320)
 
-用 `imshow` 渲染混淆矩阵热力图：
-- 每个格子标注数值（或归一化后的比例）
-- 对角线（正确分类）颜色更深
-- 自动检测对比度，切换白字/黑字
-- 支持 `normalize=True`（行归一化，每行和为 1.0）
+用 `imshow` 渲染混淆矩阵热力图，每个格子标注归一化后的比例：
+
+![混淆矩阵](/visualizations/confusion_matrix.png)
 
 ### 错误样本网格：plotErrorGrid
 
 [visualize.py:328-467](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L328-L467)
 
-展示模型分类错误的样本：
-- 红色标题：True=X, Pred=Y（预测错了）
-- 绿色标题：True=X, Pred=X（预测对了，作为对比）
-- 图像经过反归一化处理后直接可读
-- 自动计算接近正方形的网格布局
+展示模型分类错误的样本，红色标题标注真实类别与错误预测：
+
+![错误样本](/visualizations/error_grid.png)
+
+### 预测示例
+
+从测试集随机抽取 20 张图展示预测结果，绿色为正确、红色为错误：
+
+![预测示例](/visualizations/prediction_demo.png)
 
 **反归一化**（[visualize.py:431-436](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L431-L436)）：
 
@@ -183,7 +178,7 @@ $$\text{image} = \text{tensor} \times 0.3081 + 0.1307$$
 
 ### 批量生成：generateEvaluationPlots
 
-[visualize.py:557-636](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L557-L636) 一键生成全部图表并保存到 `outputs/visualizations/`。
+[visualize.py:557-636](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L557-L636) 一键生成全部图表并保存到 `visualizations/`。
 
 ---
 

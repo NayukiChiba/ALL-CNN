@@ -45,6 +45,8 @@ class MNISTDataset:
         return self.dataset[idx]
 ```
 
+![MNIST 数字样本](/visualizations/mnist_samples.png)
+
 - MNIST 首次使用会自动下载到 `datasets/MNIST/raw/`（4 个 `.gz` 文件，约 11MB）
 - `train=True` 加载 60,000 张训练图，`train=False` 加载 10,000 张测试图
 - `transform` 参数直接透传给 torchvision，使用 Compose 管线

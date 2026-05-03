@@ -575,7 +575,7 @@ def generateEvaluationPlots(
         history: Training history dict (see plotTrainingCurves).
         device: "cuda" or "cpu".
         output_dir: Directory for output files. Defaults to
-                    config.paths.VISUALIZATIONS_DIR.
+                    VISUALIZATIONS_DIR.
         class_names: Class names for plots. Defaults to digit strings.
 
     Returns:

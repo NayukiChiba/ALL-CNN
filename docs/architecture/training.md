@@ -171,6 +171,12 @@ def loadCheckpoint(filepath, model, optimizer=None):
 
 ---
 
+## 训练曲线
+
+![训练曲线](/visualizations/training_curves.png)
+
+---
+
 ## 三通道日志
 
 [TrainLogger](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/train/logger.py#L37-L355) 同时输出到三个通道：

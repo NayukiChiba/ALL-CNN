@@ -1,4 +1,8 @@
 import { defineConfig } from 'vitepress'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -14,6 +18,24 @@ export default defineConfig({
 
   markdown: {
     math: true,
+  },
+
+  vite: {
+    server: {
+      fs: {
+        allow: ['../..'],
+      },
+    },
+    plugins: [
+      {
+        name: 'serve-visualizations',
+        resolveId(id) {
+          if (id.startsWith('/visualizations/')) {
+            return path.resolve(__dirname, '../..', id.slice(1))
+          }
+        },
+      },
+    ],
   },
 
   themeConfig: {

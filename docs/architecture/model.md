@@ -58,6 +58,14 @@ def forward(self, x):
     return x
 ```
 
+**ConvBlock #1 输出的 32 个特征图（28×28）：**
+
+![ConvBlock #1 特征图](/visualizations/feature_maps_conv1.png)
+
+**ConvBlock #2 输出的 64 个特征图（14×14）：**
+
+![ConvBlock #2 特征图](/visualizations/feature_maps_conv2.png)
+
 ---
 
 ## LinearBlock：全连接组件

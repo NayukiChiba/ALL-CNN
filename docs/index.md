@@ -97,4 +97,3 @@ python main.py infer \
 |------|------|
 | [数学原理](/math/convolution) | 离散卷积 → 各层公式 → 完整前向传播 → 损失函数 → Adam 优化器 |
 | [项目架构](/architecture/overview) | 目录结构 → 数据管道 → 模型设计 → 训练流程 → 评估系统 → 推理系统 |
-| [部署指南](/deployment) | 文档本地预览、构建、GitHub Pages 自动部署 |

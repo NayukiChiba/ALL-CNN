@@ -93,7 +93,7 @@ class Predictor:
             conv_channels=conv_channels,
             fc_hidden_size=hidden_size,
             dropout=dropout,
-        )
+        ).to(device)
 
         # Load weights from checkpoint. We pass optimizer=None because we
         # only need the model weights for inference — no training will follow.

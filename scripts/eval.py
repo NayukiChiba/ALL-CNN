@@ -20,7 +20,7 @@ from pathlib import Path
 from src.data.dataloader import buildDataLoaders
 from src.eval.metrics import evaluateModel, formatReport
 from src.eval.visualize import gatherErrorSamples, plotConfusionMatrix, plotErrorGrid
-from src.model.cnn import MNISTCNN
+from src.model.factory import createModel
 from src.train.checkpoint import loadCheckpoint
 
 
@@ -57,11 +57,10 @@ def run(args: argparse.Namespace) -> None:
     print(f"Test samples: {len(test_loader.dataset):,} | batches: {len(test_loader)}")
 
     # ---- 2. Load model from checkpoint ----
-    model = MNISTCNN()
+    model = createModel(device=device)
     epoch, metrics_from_checkpoint = loadCheckpoint(
         checkpoint_path, model, optimizer=None, device=device
     )
-    model.eval()
 
     print("\nCheckpoint info:")
     print(f"  Saved at epoch: {epoch}")

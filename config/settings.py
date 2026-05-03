@@ -17,7 +17,13 @@ CLI convention:
 import argparse
 
 from config.default_params import DataParams, DefaultParams, ModelParams, TrainingParams
-from config.paths import CHECKPOINTS_DIR, DATASETS_DIR, LOGS_DIR, OUTPUTS_DIR
+from config.paths import (
+    BEST_MODEL_PATH,
+    CHECKPOINTS_DIR,
+    DATASETS_DIR,
+    LOGS_DIR,
+    OUTPUTS_DIR,
+)
 
 # ===================== Shared argument groups =====================
 # These add arguments to whichever parser they receive (train / eval / infer).
@@ -161,7 +167,10 @@ def buildParser() -> argparse.ArgumentParser:
     _addDataArgs(evalParser)
     _addPathArgs(evalParser)
     evalParser.add_argument(
-        "--checkpoint", type=str, required=True, help="checkpoint path for evaluation"
+        "--checkpoint",
+        type=str,
+        default=str(BEST_MODEL_PATH),
+        help="checkpoint path for evaluation",
     )
     evalParser.add_argument(
         "--no-visualize",
@@ -181,7 +190,10 @@ def buildParser() -> argparse.ArgumentParser:
         help="directory of images for batch inference",
     )
     inferParser.add_argument(
-        "--checkpoint", type=str, required=True, help="checkpoint path for inference"
+        "--checkpoint",
+        type=str,
+        default=str(BEST_MODEL_PATH),
+        help="checkpoint path for inference",
     )
     inferParser.add_argument(
         "--top-k", type=int, default=3, help="return top-K predictions"

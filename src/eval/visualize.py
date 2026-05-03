@@ -524,9 +524,8 @@ def gatherErrorSamples(
         wrong_mask = ~predictions.eq(batch_labels)  # (B,) bool Tensor
 
         if wrong_mask.any():
-            # Move the relevant images back to CPU
-            wrong_images = images[wrong_mask.cpu()]
-            wrong_true_labels = labels[wrong_mask]
+            wrong_images = batch_images[wrong_mask].cpu()
+            wrong_true_labels = batch_labels[wrong_mask].cpu()
             wrong_predicted_labels = predictions[wrong_mask].cpu()
 
             error_image_list.append(wrong_images)

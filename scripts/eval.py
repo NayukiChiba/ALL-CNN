@@ -17,9 +17,15 @@ import argparse
 import json
 from pathlib import Path
 
+from config.paths import VISUALIZATIONS_DIR
 from src.data.dataloader import buildDataLoaders
 from src.eval.metrics import evaluateModel, formatReport
-from src.eval.visualize import gatherErrorSamples, plotConfusionMatrix, plotErrorGrid
+from src.eval.visualize import (
+    gatherErrorSamples,
+    plotConfusionMatrix,
+    plotErrorGrid,
+    plotTrainingCurves,
+)
 from src.model.factory import createModel
 from src.train.checkpoint import loadCheckpoint
 
@@ -101,8 +107,19 @@ def run(args: argparse.Namespace) -> None:
         print("\nVisualization skipped (--no-visualize)")
     else:
         print("\nGenerating visualizations...")
-        visualizations_dir = output_dir / "visualizations"
+        visualizations_dir = VISUALIZATIONS_DIR
         visualizations_dir.mkdir(parents=True, exist_ok=True)
+
+        # Training curves (if history file exists)
+        history_path = Path(args.log_dir) / "training_history.json"
+        if history_path.exists():
+            with open(history_path, "r", encoding="utf-8") as f:
+                history = json.load(f)
+            curves_path = visualizations_dir / "training_curves.png"
+            plotTrainingCurves(history, save_path=curves_path)
+            print(f"Training curves → {curves_path}")
+        else:
+            print(f"No training history found at {history_path} — skipping curves")
 
         # Confusion matrix heatmap
         cm_path = visualizations_dir / "confusion_matrix.png"

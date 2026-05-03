@@ -188,7 +188,15 @@ def run(args: argparse.Namespace) -> None:
                 Path(args.checkpoint_dir) / "best_model.pth",
             )
 
-    # ---- 7. Summary ----
+    # ---- 7. Save training history as JSON for later visualization ----
+    import json
+
+    history_path = Path(args.log_dir) / "training_history.json"
+    with open(history_path, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+    print(f"Training history saved → {history_path}")
+
+    # ---- 8. Summary ----
     best_epoch = history["val_acc"].index(best_val_accuracy) + start_epoch + 1
     logger.logSummary(best_epoch, best_val_accuracy)
     logger.close()

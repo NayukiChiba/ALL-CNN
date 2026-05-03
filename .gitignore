@@ -371,6 +371,10 @@ DerivedData/
 .mcp/
 .codex/
 
+# VitePress 构建产物
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
 # 本地产物目录
 tmp/
 temp/

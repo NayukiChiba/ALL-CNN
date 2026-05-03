@@ -227,7 +227,7 @@ def plotArchitectureDiagram():
             "y": 3.5,
             "w": 1.5,
             "h": 1.5,
-            "label": "MaxPool\n2x2",
+            "label": "MaxPool1\n2x2",
             "color": COLOR_POOL,
         },
         {
@@ -243,7 +243,7 @@ def plotArchitectureDiagram():
             "y": 3.5,
             "w": 1.5,
             "h": 1.5,
-            "label": "MaxPool\n2x2",
+            "label": "MaxPool2\n2x2",
             "color": COLOR_POOL,
         },
         {

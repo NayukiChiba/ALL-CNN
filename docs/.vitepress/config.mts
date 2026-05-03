@@ -31,7 +31,6 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '数学原理', link: '/math/convolution' },
       { text: '项目架构', link: '/architecture/overview' },
-      { text: '部署指南', link: '/deployment' },
     ],
 
     sidebar: {

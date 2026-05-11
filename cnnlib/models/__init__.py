@@ -6,7 +6,7 @@ from cnnlib.models.blocks import (
     nin_block,
     vgg_conv,
 )
-from cnnlib.models.lenet import AlexNet, LeNet
+from cnnlib.models.lenet import AlexNet, GoogLeNet, LeNet
 
 __all__ = [
     "conv_block",
@@ -16,4 +16,5 @@ __all__ = [
     "vgg_conv",
     "LeNet",
     "AlexNet",
+    "GoogLeNet",
 ]

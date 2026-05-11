@@ -35,7 +35,7 @@ from torchvision import transforms
 
 from config.default_params import DataParams, DefaultParams
 from config.paths import BEST_MODEL_PATH
-from src.model.cnn import MNISTCNN
+from src.model.factory import createModel
 from src.train.checkpoint import loadCheckpoint
 
 
@@ -89,11 +89,13 @@ class Predictor:
         self.device = device
 
         # Build the model with the same architecture as training
-        self.model = MNISTCNN(
+        self.model = createModel(
+            modelName="cnn",
             conv_channels=conv_channels,
-            fc_hidden_size=hidden_size,
+            hidden_size=hidden_size,
             dropout=dropout,
-        ).to(device)
+            device=device,
+        )
 
         # Load weights from checkpoint. We pass optimizer=None because we
         # only need the model weights for inference — no training will follow.

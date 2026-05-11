@@ -33,6 +33,24 @@ class DataParams:
     MNIST_MEAN: float = 0.1307
     MNIST_STD: float = 0.3081
 
+    # FashionMNIST 均值和标准差
+    FASHIONMNIST_MEAN: float = 0.2860
+    FASHIONMNIST_STD: float = 0.3530
+
+    # FashionMNIST 类别名称
+    FASHIONMNIST_CLASSES: list = [
+        "T-shirt",
+        "Pants",
+        "Hoodie",
+        "Skirt",
+        "Coat",
+        "Sneakers",
+        "Shirt",
+        "Running Shoes",
+        "Bag",
+        "Boots",
+    ]
+
     # data augmentation
     ENABLE_DATA_AUGMENTATION: bool = True
 

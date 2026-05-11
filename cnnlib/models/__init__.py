@@ -1,4 +1,5 @@
 # cnnlib.models
+from cnnlib.models.alexnet import AlexNet
 from cnnlib.models.blocks import (
     conv_block,
     inception_block,
@@ -6,7 +7,10 @@ from cnnlib.models.blocks import (
     nin_block,
     vgg_conv,
 )
-from cnnlib.models.lenet import AlexNet, GoogLeNet, LeNet, NiN
+from cnnlib.models.googlenet import GoogLeNet
+from cnnlib.models.lenet import LeNet
+from cnnlib.models.nin import NiN
+from cnnlib.models.vgg import VGG11, VGG13, VGG16, VGG19
 
 __all__ = [
     "conv_block",
@@ -16,6 +20,10 @@ __all__ = [
     "vgg_conv",
     "LeNet",
     "AlexNet",
+    "VGG11",
+    "VGG13",
+    "VGG16",
+    "VGG19",
     "NiN",
     "GoogLeNet",
 ]

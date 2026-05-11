@@ -42,28 +42,25 @@ class NiN(BaseModel):
         )
 
         # ── 三个 mlpconv + MaxPool 阶段 ──────────────────
+        # nin_block 末尾已是 ReLU，不再重复加
         self.stage1 = nn.Sequential(
             nin_block(in_channels, 192, kernel_size=5),
-            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
         self.stage2 = nn.Sequential(
             nin_block(192, 160, kernel_size=5),
-            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
         self.stage3 = nn.Sequential(
             nin_block(160, 96, kernel_size=3),
-            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
         # ── 分类 mlpconv + 全局平均池化 ──────────────────
         self.classifier = nn.Sequential(
             nin_block(96, num_classes, kernel_size=3),
-            nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d(1),
         )
 

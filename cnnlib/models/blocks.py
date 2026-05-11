@@ -1,14 +1,14 @@
 """
 公共构建块
 
-CNN 架构常用的可复用模块，每个模型按需取用：
+CNN 架构常用的可复用模块,每个模型按需取用:
 
     conv_block     — Conv2d → BN → ReLU → [MaxPool2d]
     linear_block   — Linear → BN → ReLU → [Dropout]
-    inception_block — Inception 多分支并行（GoogLeNet 用）
-    nin_block       — mlpconv: Conv → 1x1 Conv → 1x1 Conv（NiN 用）
+    inception_block — Inception 多分支并行(GoogLeNet 用)
+    nin_block       — mlpconv: Conv → 1x1 Conv → 1x1 Conv(NiN 用)
 
-用法：
+用法:
     from cnnlib.models.blocks import conv_block, inception_block, nin_block
 """
 
@@ -16,7 +16,7 @@ import torch
 import torch.nn as nn
 
 # ═══════════════════════════════════════════════════════════════
-# 基础块：ConvBlock / LinearBlock
+# 基础块:ConvBlock / LinearBlock
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -27,8 +27,8 @@ class conv_block(nn.Module):
     参数:
         in_channels:  输入通道数
         out_channels: 输出通道数
-        kernel_size:  卷积核大小（默认 3）
-        pool:         是否追加 2x2 MaxPool（默认 True）
+        kernel_size:  卷积核大小(默认 3)
+        pool:         是否追加 2x2 MaxPool(默认 True)
     """
 
     def __init__(
@@ -62,7 +62,7 @@ class linear_block(nn.Module):
     参数:
         in_features:  输入维度
         out_features: 输出维度
-        dropout:      Dropout 概率（None = 不启用）
+        dropout:      Dropout 概率(None = 不启用)
     """
 
     def __init__(
@@ -84,13 +84,13 @@ class linear_block(nn.Module):
 
 
 # ═══════════════════════════════════════════════════════════════
-# Inception 模块（GoogLeNet）
+# Inception 模块(GoogLeNet)
 # ═══════════════════════════════════════════════════════════════
 
 
 class inception_block(nn.Module):
     """
-    Inception 模块：四条分支并行，结果在通道维拼接
+    Inception 模块:四条分支并行,结果在通道维拼接
 
     分支:
         1x1 Conv
@@ -100,12 +100,12 @@ class inception_block(nn.Module):
 
     参数:
         in_channels:  输入通道数
-        c1:           分支 1 的输出通道数（1x1）
-        c2_reduce:    分支 2 的瓶颈通道数（1x1 降维）
-        c2:           分支 2 的输出通道数（3x3）
+        c1:           分支 1 的输出通道数(1x1)
+        c2_reduce:    分支 2 的瓶颈通道数(1x1 降维)
+        c2:           分支 2 的输出通道数(3x3)
         c3_reduce:    分支 3 的瓶颈通道数
-        c3:           分支 3 的输出通道数（5x5）
-        c4:           分支 4 的输出通道数（MaxPool + 1x1）
+        c3:           分支 3 的输出通道数(5x5)
+        c4:           分支 4 的输出通道数(MaxPool + 1x1)
 
     参考:
         Szegedy et al., "Going Deeper with Convolutions", 2014
@@ -162,26 +162,26 @@ class inception_block(nn.Module):
 
 
 # ═══════════════════════════════════════════════════════════════
-# NiN 模块（Network in Network）
+# NiN 模块(Network in Network)
 # ═══════════════════════════════════════════════════════════════
 
 
 class nin_block(nn.Module):
     """
-    mlpconv 块：Conv → ReLU → 1x1 Conv → ReLU → 1x1 Conv → ReLU
+    mlpconv 块:Conv → ReLU → 1x1 Conv → ReLU → 1x1 Conv → ReLU
 
-    用多层感知机替代单层卷积，增强局部感受野内的非线性表达能力。
+    用多层感知机替代单层卷积,增强局部感受野内的非线性表达能力.
 
-    1x1 卷积的作用：
+    1x1 卷积的作用:
         - 等价于对每个像素位置做一次全连接变换
-        - 不改变空间尺寸，只改变通道数
+        - 不改变空间尺寸,只改变通道数
         - 参数量极少
 
     参数:
         in_channels:  输入通道数
         out_channels: 输出通道数
-        kernel_size:  第一层卷积核大小（默认 5）
-        padding:      填充大小（默认 same）
+        kernel_size:  第一层卷积核大小(默认 5)
+        padding:      填充大小(默认 same)
 
     参考:
         Lin et al., "Network In Network", 2014

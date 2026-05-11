@@ -1,14 +1,14 @@
 """
 模型工厂
 
-根据名称创建模型实例，注册表的唯一消费方。
+根据名称创建模型实例,注册表的唯一消费方.
 
-职责：
+职责:
     1. 查注册表拿类引用和元信息
     2. 拼出 BaseModel 需要的 input_size / in_channels / num_classes
     3. 实例化并迁移到设备
 
-用法：
+用法:
     from cnnlib.models.factory import create_model
 
     model = create_model("lenet", num_classes=10, device="cuda")
@@ -37,16 +37,16 @@ def create_model(
     根据模型名称创建实例
 
     Args:
-        name:        模型名称，如 "lenet", "cnn"
-        num_classes: 输出类别数（从数据集注册表获取）
-        device:      "cpu", "cuda" 或 "auto"（自动检测）
+        name:        模型名称,如 "lenet", "cnn"
+        num_classes: 输出类别数(从数据集注册表获取)
+        device:      "cpu", "cuda" 或 "auto"(自动检测)
         **kwargs:    透传给模型构造函数的额外参数
                      - cnn: conv_channels, dropout
                      - alexnet: dropout
                      - vgg: variant ("11"/"13"/"16"/"19"), dropout
 
     Returns:
-        模型实例，已在目标设备上
+        模型实例,已在目标设备上
 
     示例:
         # 基础用法
@@ -81,11 +81,11 @@ def create_model_for_dataset(
     **kwargs,
 ) -> nn.Module:
     """
-    快捷方法：从数据集注册表自动取 num_classes 创建模型
+    快捷方法:从数据集注册表自动取 num_classes 创建模型
 
     Args:
-        model_name:   模型名称，如 "lenet"
-        dataset_name: 数据集名称，如 "cifar10"
+        model_name:   模型名称,如 "lenet"
+        dataset_name: 数据集名称,如 "cifar10"
         device:       "cpu", "cuda" 或 "auto"
         **kwargs:     透传给 create_model
 

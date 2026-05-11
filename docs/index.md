@@ -80,8 +80,8 @@ python main.py infer \
 
 ```
 输入 (B, 1, 28, 28)
-  → ConvBlock(1→32, 3×3, MaxPool)    → (B, 32, 14, 14)
-  → ConvBlock(32→64, 3×3, MaxPool)   → (B, 64,  7,  7)
+  → ConvBlock(1→32, 3x3, MaxPool)    → (B, 32, 14, 14)
+  → ConvBlock(32→64, 3x3, MaxPool)   → (B, 64,  7,  7)
   → Flatten                           → (B, 3136)
   → LinearBlock(3136→128, Dropout0.5) → (B, 128)
   → Linear(128→10)                    → (B, 10) logits

@@ -71,7 +71,7 @@ def plotTrainingCurves(
     """
     Plot training and validation loss + accuracy curves side by side.
 
-    Produces a 1-row × 2-column figure:
+    Produces a 1-row x 2-column figure:
         Left:  loss curves (train + val) over epochs
         Right: accuracy curves (train + val) over epochs
 
@@ -339,7 +339,7 @@ def plotErrorGrid(
     Display a grid of misclassified samples.
 
     Each cell shows:
-        - The MNIST image (grayscale, 28×28)
+        - The MNIST image (grayscale, 28x28)
         - The true label and the (wrong) predicted label
 
     This is the most useful diagnostic for understanding WHAT the model
@@ -365,7 +365,7 @@ def plotErrorGrid(
 
         max_samples:
             Maximum number of error samples to show. Grid layout auto-fits:
-            25 → 5×5, 16 → 4×4, 9 → 3×3, etc.
+            25 → 5x5, 16 → 4x4, 9 → 3x3, etc.
 
         save_path:
             File path to save. None to display interactively.

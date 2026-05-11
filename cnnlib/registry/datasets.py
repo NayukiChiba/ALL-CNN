@@ -3,12 +3,12 @@
 """
 数据集注册表
 
-只做三件事：
-    1. 登记：每个数据集一行字典条目
-    2. 查询：列出所有数据集、获取单个数据集元信息
+只做三件事:
+    1. 登记:每个数据集一行字典条目
+    2. 查询:列出所有数据集、获取单个数据集元信息
     3. 告诉 transform 和 loader 该怎么处理数据
 
-用法：
+用法:
     from cnnlib.registry.datasets import list_datasets, get_dataset_info
 
     info = get_dataset_info("cifar10")
@@ -18,7 +18,7 @@
 
 from typing import Any, Dict, List
 
-# 每个条目记录一个数据集的全部元信息，加一行即接入新数据集
+# 每个条目记录一个数据集的全部元信息,加一行即接入新数据集
 datasets: Dict[str, Dict[str, Any]] = {
     # -- 灰度 28x28 --
     "mnist": {
@@ -117,7 +117,7 @@ def get_dataset_info(name: str) -> Dict[str, Any]:
     获取数据集元信息
 
     Args:
-        name: 数据集名称（大小写不敏感），如 "cifar10", "mnist"
+        name: 数据集名称(大小写不敏感),如 "cifar10", "mnist"
 
     Returns:
         {"channels": int, "num_classes": int, "image_size": int|None,
@@ -131,7 +131,7 @@ def get_dataset_info(name: str) -> Dict[str, Any]:
 
 
 def print_datasets():
-    """打印所有已注册数据集（调试用）"""
+    """打印所有已注册数据集(调试用)"""
     print(f"{'Name':<14} {'Channels':<5} {'Classes':<8} {'Size':<10} {'Description'}")
     print("-" * 70)
     for name, info in datasets.items():

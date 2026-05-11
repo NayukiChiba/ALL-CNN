@@ -9,7 +9,7 @@ Config (conv_channels, fc_hidden_size, dropout)
         │
         ▼
 createModel() 工厂 ──→ MNISTCNN
-        │               ├── nn.ModuleList[ConvBlock × L]
+        │               ├── nn.ModuleList[ConvBlock x L]
         │               ├── nn.Flatten()
         │               ├── LinearBlock
         │               └── nn.Linear(→10)
@@ -58,11 +58,11 @@ def forward(self, x):
     return x
 ```
 
-**ConvBlock #1 输出的 32 个特征图（28×28）：**
+**ConvBlock #1 输出的 32 个特征图（28x28）：**
 
 ![ConvBlock #1 特征图](/visualizations/feature_maps_conv1.png)
 
-**ConvBlock #2 输出的 64 个特征图（14×14）：**
+**ConvBlock #2 输出的 64 个特征图（14x14）：**
 
 ![ConvBlock #2 特征图](/visualizations/feature_maps_conv2.png)
 
@@ -112,7 +112,7 @@ class MNISTCNN(nn.Module):
         numConvLayers = len(conv_channels)
         pooledSize = 28 // (2 ** numConvLayers)    # → 28/(2^2) = 7
         lastChannels = conv_channels[-1]            # → 64
-        flattenedSize = lastChannels * (pooledSize ** 2)  # → 64×49 = 3136
+        flattenedSize = lastChannels * (pooledSize ** 2)  # → 64x49 = 3136
 
         self.flatten = nn.Flatten()
         self.fcBlock = LinearBlock(flattenedSize, fc_hidden_size, dropout)
@@ -121,13 +121,13 @@ class MNISTCNN(nn.Module):
 
 **关键设计：自动计算扁平化尺寸**
 
-`flattenedSize = lastChannels × (28 / 2^L)^2` 中的各参数：
+`flattenedSize = lastChannels x (28 / 2^L)^2` 中的各参数：
 
 - `28`：MNIST 原始图尺寸
 - `2^L`：每层 MaxPool(2,2) 将空间尺寸减半，L 层后变为 1/2^L
-- 两个 ConvBlock → 28/(2^2) = 7 → 64×7×7 = 3136
+- 两个 ConvBlock → 28/(2^2) = 7 → 64x7x7 = 3136
 
-如果改为 `conv_channels=[32, 64, 128]`（3 层），自动计算为 `128 × (28/2^3)^2 = 128 × 3.5^2 = 128 × 12 = 1536`，无需任何手动修改。
+如果改为 `conv_channels=[32, 64, 128]`（3 层），自动计算为 `128 x (28/2^3)^2 = 128 x 3.5^2 = 128 x 12 = 1536`，无需任何手动修改。
 
 **forward 方法**（[cnn.py:88-102](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/model/cnn.py#L88-L102)）：
 
@@ -175,7 +175,7 @@ def createModel(conv_channels=None, hidden_size=None,
 | 参数 | 默认值 | 含义 |
 |------|--------|------|
 | `CONV_CHANNELS` | `[32, 64]` | 两层卷积，输出通道分别为 32、64 |
-| `CONV_KERNEL_SIZE` | `3` | 3×3 卷积核 |
+| `CONV_KERNEL_SIZE` | `3` | 3x3 卷积核 |
 | `FC_HIDDEN_SIZE` | `128` | 全连接隐层 128 个神经元 |
 | `DROPOUT_RATE` | `0.5` | Dropout 概率 50% |
 

@@ -3,13 +3,13 @@
 """
 模型注册表
 
-只做两件事：
-    1. 登记：装饰器注册模型类 + 元信息
-    2. 查询：列出所有已注册模型、获取单个模型信息
+只做两件事:
+    1. 登记:装饰器注册模型类 + 元信息
+    2. 查询:列出所有已注册模型、获取单个模型信息
 
 创建实例走 cnnlib/models/factory.py
 
-用法：
+用法:
     from cnnlib.registry.models import register_model, list_models, get_model_info
 
     @register_model("lenet", input_size=32, channels=1, description="LeNet-5 (1998)")
@@ -35,12 +35,12 @@ def register_model(
     description: str = "",
 ):
     """
-    装饰器：将模型类注册到全局注册表
+    装饰器:将模型类注册到全局注册表
 
     Args:
-        name:        模型简称，如 "lenet", "alexnet", "vgg16"
-        input_size:  模型要求的输入尺寸（正方形），如 32, 224
-        channels:    模型要求的输入通道数，1=灰度 3=RGB
+        name:        模型简称,如 "lenet", "alexnet", "vgg16"
+        input_size:  模型要求的输入尺寸(正方形),如 32, 224
+        channels:    模型要求的输入通道数,1=灰度 3=RGB
         description: 一行描述
     """
 
@@ -63,7 +63,7 @@ def list_models() -> List[str]:
 
 def get_model_info(name: str) -> Dict[str, Any]:
     """
-    获取模型元信息（不实例化）
+    获取模型元信息(不实例化)
 
     Returns:
         {"class": cls, "input_size": int, "channels": int, "description": str}
@@ -75,7 +75,7 @@ def get_model_info(name: str) -> Dict[str, Any]:
 
 
 def print_registry():
-    """打印所有已注册模型（调试用）"""
+    """打印所有已注册模型(调试用)"""
     print(f"{'Name':<14} {'Input':<10} {'Ch':<5} {'Description'}")
     print("-" * 60)
     for name, info in _registry.items():

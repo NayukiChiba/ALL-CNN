@@ -163,7 +163,7 @@ def classificationReport(
 
         Precision_c = TP_c / (TP_c + FP_c)           — of all "c" predictions, how many correct?
         Recall_c    = TP_c / (TP_c + FN_c)           — of all true c samples, how many found?
-        F1_c        = 2 × P_c × R_c / (P_c + R_c)   — harmonic mean of precision and recall
+        F1_c        = 2 x P_c x R_c / (P_c + R_c)   — harmonic mean of precision and recall
         Support_c   = Σ_j C[c, j]                    — number of true samples of class c
 
     Handles the division-by-zero edge case: if a class never appears in

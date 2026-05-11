@@ -6,7 +6,7 @@ CNN 架构常用的可复用模块，每个模型按需取用：
     conv_block     — Conv2d → BN → ReLU → [MaxPool2d]
     linear_block   — Linear → BN → ReLU → [Dropout]
     inception_block — Inception 多分支并行（GoogLeNet 用）
-    nin_block       — mlpconv: Conv → 1×1 Conv → 1×1 Conv（NiN 用）
+    nin_block       — mlpconv: Conv → 1x1 Conv → 1x1 Conv（NiN 用）
 
 用法：
     from cnnlib.models.blocks import conv_block, inception_block, nin_block
@@ -28,7 +28,7 @@ class conv_block(nn.Module):
         in_channels:  输入通道数
         out_channels: 输出通道数
         kernel_size:  卷积核大小（默认 3）
-        pool:         是否追加 2×2 MaxPool（默认 True）
+        pool:         是否追加 2x2 MaxPool（默认 True）
     """
 
     def __init__(
@@ -93,19 +93,19 @@ class inception_block(nn.Module):
     Inception 模块：四条分支并行，结果在通道维拼接
 
     分支:
-        1×1 Conv
-        1×1 Conv → 3×3 Conv
-        1×1 Conv → 5×5 Conv
-        3×3 MaxPool → 1×1 Conv
+        1x1 Conv
+        1x1 Conv → 3x3 Conv
+        1x1 Conv → 5x5 Conv
+        3x3 MaxPool → 1x1 Conv
 
     参数:
         in_channels:  输入通道数
-        c1:           分支 1 的输出通道数（1×1）
-        c2_reduce:    分支 2 的瓶颈通道数（1×1 降维）
-        c2:           分支 2 的输出通道数（3×3）
+        c1:           分支 1 的输出通道数（1x1）
+        c2_reduce:    分支 2 的瓶颈通道数（1x1 降维）
+        c2:           分支 2 的输出通道数（3x3）
         c3_reduce:    分支 3 的瓶颈通道数
-        c3:           分支 3 的输出通道数（5×5）
-        c4:           分支 4 的输出通道数（MaxPool + 1×1）
+        c3:           分支 3 的输出通道数（5x5）
+        c4:           分支 4 的输出通道数（MaxPool + 1x1）
 
     参考:
         Szegedy et al., "Going Deeper with Convolutions", 2014
@@ -124,13 +124,13 @@ class inception_block(nn.Module):
     ):
         super().__init__()
 
-        # 分支 1: 1×1 Conv
+        # 分支 1: 1x1 Conv
         self.branch1 = nn.Sequential(
             nn.Conv2d(in_channels, c1, kernel_size=1),
             nn.ReLU(inplace=True),
         )
 
-        # 分支 2: 1×1 → 3×3
+        # 分支 2: 1x1 → 3x3
         self.branch2 = nn.Sequential(
             nn.Conv2d(in_channels, c2_reduce, kernel_size=1),
             nn.ReLU(inplace=True),
@@ -138,7 +138,7 @@ class inception_block(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        # 分支 3: 1×1 → 5×5
+        # 分支 3: 1x1 → 5x5
         self.branch3 = nn.Sequential(
             nn.Conv2d(in_channels, c3_reduce, kernel_size=1),
             nn.ReLU(inplace=True),
@@ -146,7 +146,7 @@ class inception_block(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        # 分支 4: 3×3 MaxPool → 1×1
+        # 分支 4: 3x3 MaxPool → 1x1
         self.branch4 = nn.Sequential(
             nn.MaxPool2d(kernel_size=3, stride=1, padding=1),
             nn.Conv2d(in_channels, c4, kernel_size=1),
@@ -168,11 +168,11 @@ class inception_block(nn.Module):
 
 class nin_block(nn.Module):
     """
-    mlpconv 块：Conv → ReLU → 1×1 Conv → ReLU → 1×1 Conv → ReLU
+    mlpconv 块：Conv → ReLU → 1x1 Conv → ReLU → 1x1 Conv → ReLU
 
     用多层感知机替代单层卷积，增强局部感受野内的非线性表达能力。
 
-    1×1 卷积的作用：
+    1x1 卷积的作用：
         - 等价于对每个像素位置做一次全连接变换
         - 不改变空间尺寸，只改变通道数
         - 参数量极少

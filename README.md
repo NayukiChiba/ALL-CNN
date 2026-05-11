@@ -9,7 +9,7 @@
 | 架构 | 年份 | 特点 | 状态 |
 |------|------|------|------|
 | CNN（ConvBlock） | — | Conv → BN → ReLU → MaxPool 堆叠 | 已有 |
-| LeNet-5 | 1998 | 5×5 Conv + AvgPool + Tanh + Xavier | 已合并 |
+| LeNet-5 | 1998 | 5x5 Conv + AvgPool + Tanh + Xavier | 已合并 |
 
 **规划中**: AlexNet / VGG-11,13,16,19 / NiN / GoogLeNet
 
@@ -17,8 +17,8 @@
 
 | 数据集 | 类型 | 类别 | 尺寸 |
 |--------|------|------|------|
-| MNIST | 灰度数字 | 10 | 28×28 |
-| Fashion-MNIST | 灰度服饰 | 10 | 28×28 |
+| MNIST | 灰度数字 | 10 | 28x28 |
+| Fashion-MNIST | 灰度服饰 | 10 | 28x28 |
 
 ## 项目结构
 
@@ -93,8 +93,8 @@ ALL-CNN/
 
 ```
 输入 (1, 28, 28)
-  → ConvBlock(1→32,  3×3, MaxPool)  → (32, 14, 14)
-  → ConvBlock(32→64, 3×3, MaxPool)  → (64,  7,  7)
+  → ConvBlock(1→32,  3x3, MaxPool)  → (32, 14, 14)
+  → ConvBlock(32→64, 3x3, MaxPool)  → (64,  7,  7)
   → Flatten                          → (3136,)
   → LinearBlock(3136→128, Dropout 0.5) → (128,)
   → Linear(128→10)                   → (10,) logits
@@ -106,11 +106,11 @@ ALL-CNN/
 
 ```
 输入 (1, 32, 32)
-  → Conv2d(1→6, 5×5) + Tanh       → (6, 28, 28)
-  → AvgPool2d(2×2)                  → (6, 14, 14)
-  → Conv2d(6→16, 5×5) + Tanh      → (16, 10, 10)
-  → AvgPool2d(2×2)                  → (16, 5, 5)
-  → Conv2d(16→120, 5×5) + Tanh    → (120, 1, 1)
+  → Conv2d(1→6, 5x5) + Tanh       → (6, 28, 28)
+  → AvgPool2d(2x2)                  → (6, 14, 14)
+  → Conv2d(6→16, 5x5) + Tanh      → (16, 10, 10)
+  → AvgPool2d(2x2)                  → (16, 5, 5)
+  → Conv2d(16→120, 5x5) + Tanh    → (120, 1, 1)
   → Flatten                         → (120,)
   → Linear(120→84) + Tanh          → (84,)
   → Linear(84→10)                   → (10,) logits

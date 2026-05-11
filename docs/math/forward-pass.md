@@ -46,7 +46,7 @@ $$X_0 \in \mathbb{R}^{B \times 1 \times 28 \times 28}$$
 
 ### ConvBlock #1
 
-**Conv2d — 32 个 1×3×3 卷积核：**
+**Conv2d — 32 个 1x3x3 卷积核：**
 
 $$Z_1[c, i, j] = b_1[c] + \sum_{u=0}^{2} \sum_{v=0}^{2} W_1[c, 0, u, v] \cdot X_0[0, i+u-1, j+v-1]$$
 
@@ -62,7 +62,7 @@ $$\hat{Z}_1[c, i, j] = \gamma_{1}[c] \cdot \frac{Z_1[c, i, j] - \mu_{1}[c]}{\sqr
 
 $$A_1[c, i, j] = \max(0, \hat{Z}_1[c, i, j])$$
 
-**MaxPool2d（2×2 非重叠）：**
+**MaxPool2d（2x2 非重叠）：**
 
 $$P_1[c, i, j] = \max\left\{A_1[c, 2i, 2j], A_1[c, 2i, 2j+1], A_1[c, 2i+1, 2j], A_1[c, 2i+1, 2j+1]\right\}$$
 
@@ -72,7 +72,7 @@ $$P_1[c, i, j] = \max\left\{A_1[c, 2i, 2j], A_1[c, 2i, 2j+1], A_1[c, 2i+1, 2j], 
 
 ### ConvBlock #2
 
-**Conv2d — 64 个 32×3×3 卷积核：**
+**Conv2d — 64 个 32x3x3 卷积核：**
 
 $$Z_2[k, i, j] = b_2[k] + \sum_{c=0}^{31} \sum_{u=0}^{2} \sum_{v=0}^{2} W_2[k, c, u, v] \cdot P_1[c, i+u-1, j+v-1]$$
 
@@ -88,7 +88,7 @@ $$F = \text{reshape}(P_2, \; [B, 64 \times 7 \times 7]) = \text{reshape}(P_2, \;
 
 ### LinearBlock
 
-**Linear — 128×3136 权重矩阵：**
+**Linear — 128x3136 权重矩阵：**
 
 $$H_0[j] = b_{fc}[j] + \sum_{i=0}^{3135} F[i] \cdot W_{fc}[j, i], \quad j = 0, \dots, 127$$
 
@@ -96,7 +96,7 @@ $$H_0[j] = b_{fc}[j] + \sum_{i=0}^{3135} F[i] \cdot W_{fc}[j, i], \quad j = 0, \
 
 $$H = \text{Dropout}_{0.5}\left(\text{ReLU}\left(\text{BN}(H_0)\right)\right) \in \mathbb{R}^{B \times 128}$$
 
-训练时 Dropout 随机置零一半神经元并 2× 缩放存活神经元；推理时 Dropout 关闭。
+训练时 Dropout 随机置零一半神经元并 2x 缩放存活神经元；推理时 Dropout 关闭。
 
 ### 输出层
 
@@ -125,7 +125,7 @@ $$\text{logits}[k] = b_{out}[k] + \sum_{i=0}^{127} H[i] \cdot W_{out}[k, i], \qu
 | Dropout | 无 | 0 | 420,800 |
 | Linear(out) | $W: 10 \times 128 = 1,280$, $b: 10$ | 1,290 | **422,090** |
 
-**关键观察：** 全连接层（401,536 / 422,090 ≈ 95.1%）占据了绝大多数参数。这是因为从卷积的 64×7×7=3136 维特征空间映射到 128 维隐空间是信息压缩的瓶颈。卷积层的参数份额 (< 5%) 体现了参数共享的巨大优势。
+**关键观察：** 全连接层（401,536 / 422,090 ≈ 95.1%）占据了绝大多数参数。这是因为从卷积的 64x7x7=3136 维特征空间映射到 128 维隐空间是信息压缩的瓶颈。卷积层的参数份额 (< 5%) 体现了参数共享的巨大优势。
 
 ## 逐层可视化
 

@@ -4,7 +4,7 @@ src/inference/predictor.py
 MNIST digit predictor — loads a trained checkpoint and runs inference.
 
 Supports single-image and batch prediction from multiple input formats:
-    - PIL Image (grayscale or RGB, any size — auto-resized to 28×28)
+    - PIL Image (grayscale or RGB, any size — auto-resized to 28x28)
     - numpy array (uint8 or float32, shape (28,28) or (H,W))
     - torch Tensor (float32, shape (1,28,28) or (C,H,W))
     - file path (str or Path — PNG, JPG, etc.)
@@ -112,7 +112,7 @@ class Predictor:
 
         # ---- Preprocessing transform ----
         # Must match the validation/test transform from training:
-        #   1. Convert any input to PIL grayscale 28×28
+        #   1. Convert any input to PIL grayscale 28x28
         #      (handled separately in _preprocess because we accept
         #       multiple input types)
         #   2. ToTensor:  PIL (H,W) [0,255] → Tensor (1,H,W) [0,1]
@@ -141,7 +141,7 @@ class Predictor:
 
         Accepts PIL Image, numpy array, torch Tensor, or a file path.
         Images are automatically converted to grayscale, resized to
-        28×28, and normalized before being fed to the model.
+        28x28, and normalized before being fed to the model.
 
         Args:
             image:
@@ -241,7 +241,7 @@ class Predictor:
 
         The preprocessing pipeline:
             1. File path → PIL Image (via PIL.Image.open)
-            2. numpy/Tensor → PIL Image (grayscale, 28×28)
+            2. numpy/Tensor → PIL Image (grayscale, 28x28)
             3. PIL Image → apply self.transform → (1, 28, 28) normalized tensor
             4. Add batch dimension → (1, 1, 28, 28)
         """
@@ -268,7 +268,7 @@ class Predictor:
                 image = (image * 255).byte()
             image = Image.fromarray(image.cpu().numpy(), mode="L")
 
-        # --- PIL Image: ensure grayscale + 28×28, then apply transform ---
+        # --- PIL Image: ensure grayscale + 28x28, then apply transform ---
         if image.mode != "L":
             image = image.convert("L")
 

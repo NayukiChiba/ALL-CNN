@@ -3,16 +3,16 @@
 """
 CNN 模型基类
 
-不强制子类的内部结构, 只提供通用工具：
+不强制子类的内部结构, 只提供通用工具:
     - 自动推导 feature_dim(一次虚拟前传)
     - 参数量统计
     - 结构摘要打印
 
-子类自由选择写法：
-    - 简单模型：用 nn.Sequential 堆叠
-    - 复杂模型：手写 forward, 用到 ModuleList / ModuleDict 都行
+子类自由选择写法:
+    - 简单模型:用 nn.Sequential 堆叠
+    - 复杂模型:手写 forward, 用到 ModuleList / ModuleDict 都行
 
-用法：
+用法:
     from cnnlib.models.base import BaseModel
 
     class MyNet(BaseModel):
@@ -36,12 +36,12 @@ class BaseModel(nn.Module):
     """
     CNN 模型基类
 
-    子类需要在 __init__ 中调用 super().__init__() 并传入三个参数：
+    子类需要在 __init__ 中调用 super().__init__() 并传入三个参数:
         input_size  — 输入图像尺寸(正方形边长), 如 32, 224
         in_channels — 输入通道数, 1=灰度 3=RGB
         num_classes — 分类类别数
 
-    基类提供：
+    基类提供:
         self.input_size、self.in_channels、self.num_classes — 随处可用
         infer_feature_dim(module) — 自动计算展平后维度
         param_count() — 总参数量
@@ -64,7 +64,7 @@ class BaseModel(nn.Module):
         Args:
             module: 特征提取部分(卷积层), 不包含 flatten
 
-        用法：
+        用法:
             self.conv = nn.Sequential(...)
             self.feature_dim = self.infer_feature_dim(self.conv)
         """

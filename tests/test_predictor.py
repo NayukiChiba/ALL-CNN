@@ -54,7 +54,7 @@ def predictor(checkpoint_path: str) -> Predictor:
 
 
 def _make_pil_image() -> Image.Image:
-    """Create a simple 28×28 grayscale PIL image with a white digit-like blob."""
+    """Create a simple 28x28 grayscale PIL image with a white digit-like blob."""
     array = np.zeros((28, 28), dtype=np.uint8)
     # Draw a rough "7" shape: horizontal top + diagonal
     array[6:9, 6:22] = 255  # top bar
@@ -113,7 +113,7 @@ class TestPredictSingle:
         self._assert_result_structure(result, top_k=5)
 
     def test_pil_any_size(self, predictor: Predictor):
-        """Non-28×28 images are auto-resized."""
+        """Non-28x28 images are auto-resized."""
         image = Image.fromarray(
             np.random.randint(0, 256, size=(56, 56), dtype=np.uint8), mode="L"
         )

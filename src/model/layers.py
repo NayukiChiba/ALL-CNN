@@ -60,15 +60,15 @@ class ConvBlock(nn.Module):
 
             kernel_size:
                 Size of the square convolution kernel. Default 3 means a
-                3×3 sliding window.
-                - 3×3: the standard choice. Two stacked 3×3 convs have the
-                  same receptive field as one 5×5, but with fewer parameters
+                3x3 sliding window.
+                - 3x3: the standard choice. Two stacked 3x3 convs have the
+                  same receptive field as one 5x5, but with fewer parameters
                   and one extra non-linearity. This is the VGG finding (2014).
-                - 5×5: used when you want a larger receptive field per layer.
+                - 5x5: used when you want a larger receptive field per layer.
                 - Odd values allow symmetric 'same' padding (kernel_size // 2).
 
             pool:
-                If True (default), append a 2×2 MaxPool2d after ReLU.
+                If True (default), append a 2x2 MaxPool2d after ReLU.
                 - MaxPool with kernel_size=2, stride=2 halves H and W.
                 - This reduces spatial resolution → fewer computations in
                   deeper layers.
@@ -83,7 +83,7 @@ class ConvBlock(nn.Module):
         # ---- Conv2d ----
         # kernel_size // 2 gives symmetric 'same' padding for odd kernels:
         #   k=3 → pad 1   k=5 → pad 2   k=7 → pad 3
-        # Without padding, a 3×3 conv shrinks H,W by 2 pixels each.
+        # Without padding, a 3x3 conv shrinks H,W by 2 pixels each.
         # With same padding, H,W are preserved — only MaxPool changes them.
         # stride defaults to 1, dilation defaults to 1.
         self.conv = nn.Conv2d(
@@ -117,8 +117,8 @@ class ConvBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
         # ---- MaxPool2d (optional) ----
-        # kernel_size=2, stride defaults to kernel_size → non-overlapping 2×2 windows.
-        # For each 2×2 patch, takes the maximum value.
+        # kernel_size=2, stride defaults to kernel_size → non-overlapping 2x2 windows.
+        # For each 2x2 patch, takes the maximum value.
         # This does NOT have learnable parameters — it's a fixed operation.
         if pool:
             self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -175,7 +175,7 @@ class LinearBlock(nn.Module):
             in_features:
                 Dimension of the input vector. For MNIST with our architecture:
                 - First LinearBlock:  in_features = 64*7*7 = 3136
-                  (after ConvBlock×2 and Flatten).
+                  (after ConvBlockx2 and Flatten).
                 - Second LinearBlock: in_features = 128 (output of first block).
 
             out_features:

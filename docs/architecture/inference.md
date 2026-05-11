@@ -133,7 +133,7 @@ uint8 [0,255] 直接转 PIL；float32 [0,1] 先缩放到 [0,255] 再转。
 ### 最终的变换序列
 
 ```python
-# 此时 image 一定是 PIL 灰度图 28×28
+# 此时 image 一定是 PIL 灰度图 28x28
 tensor = self.transform(image)   # ToTensor() + Normalize()
 tensor = tensor.unsqueeze(0)     # (1, 28, 28) → (1, 1, 28, 28)
 ```

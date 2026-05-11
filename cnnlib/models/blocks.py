@@ -203,6 +203,35 @@ class nin_block(nn.Module):
 
 
 # ═══════════════════════════════════════════════════════════════
+# VGG 卷积块
+# ═══════════════════════════════════════════════════════════════
+
+
+class vgg_conv(nn.Module):
+    """
+    VGG 基础卷积块：Conv2d(3×3, pad=1) → BatchNorm2d → ReLU
+
+    VGG 的核心设计：全部使用 3×3 卷积 + same padding，
+    空间尺寸只由 MaxPool2d(2×2) 控制，卷积本身不改变 H×W。
+
+    参数:
+        in_channels:  输入通道数
+        out_channels: 输出通道数
+    """
+
+    def __init__(self, in_channels: int, out_channels: int):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.block(x)
+
+
+# ═══════════════════════════════════════════════════════════════
 # 调试
 # ═══════════════════════════════════════════════════════════════
 

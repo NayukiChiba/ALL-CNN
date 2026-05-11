@@ -3,20 +3,21 @@
 """
 模型注册表
 
-只做三件事：
+只做两件事：
     1. 登记：装饰器注册模型类 + 元信息
     2. 查询：列出所有已注册模型、获取单个模型信息
-    3. 创建：根据名称实例化模型
+
+创建实例走 cnnlib/models/factory.py
 
 用法：
-    from cnnlib.registry.models import register_model, list_models, create_model
+    from cnnlib.registry.models import register_model, list_models, get_model_info
 
     @register_model("lenet", input_size=32, channels=1, description="LeNet-5 (1998)")
     class LeNet(nn.Module):
         ...
 
     names = list_models()
-    model = create_model("lenet", num_classes=10)
+    info = get_model_info("lenet")
 """
 
 from typing import Any, Dict, List, Type
@@ -71,19 +72,6 @@ def get_model_info(name: str) -> Dict[str, Any]:
         available = ", ".join(_registry.keys()) or "(none)"
         raise KeyError(f"Unknown model: '{name}'. Available: {available}")
     return _registry[name]
-
-
-def create_model(name: str, num_classes: int = 10, **kwargs) -> nn.Module:
-    """
-    根据名称创建模型实例
-
-    Args:
-        name:        模型名称，如 "lenet"
-        num_classes: 输出类别数
-        **kwargs:    传递给模型构造函数的额外参数
-    """
-    info = get_model_info(name)
-    return info["class"](num_classes=num_classes, **kwargs)
 
 
 def print_registry():

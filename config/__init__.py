@@ -1,4 +1,3 @@
-from config.cli import buildParser, getSettings
 from config.data import DataParams
 from config.defaults import DefaultParams
 from config.paths import (
@@ -46,7 +45,4 @@ __all__ = [
     "DefaultParams",
     "DataParams",
     "TrainingParams",
-    # CLI
-    "buildParser",
-    "getSettings",
 ]

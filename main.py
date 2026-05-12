@@ -23,7 +23,7 @@ from typing import Callable, Dict, List, Optional
 import numpy as np
 import torch
 
-from config.cli import getSettings
+from cnnlib.cli import getSettings
 
 # ============================================================================
 # Subcommand handlers
@@ -53,6 +53,14 @@ def runInference(args: argparse.Namespace) -> None:
     from scripts.infer import run as inferRun
 
     inferRun(args)
+
+
+def runInteractive(_args: argparse.Namespace | None = None) -> None:
+    """交互式菜单 — 无参数时自动进入。"""
+    from cnnlib.cli.interactive import InteractiveCLI
+
+    cli = InteractiveCLI()
+    cli.run()
 
 
 # ============================================================================
@@ -95,10 +103,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     # Step 2: No subcommand given (e.g., user ran "python main.py" with no args).
     # argparse sets dest="command" to None when no subparser is matched.
     if args.command is None:
-        # Lazily import buildParser only when needed (small optimization).
-        from config.cli import buildParser
-
-        buildParser().print_help()
+        runInteractive(args)
         return
 
     # Step 3: Seed everything for reproducibility.

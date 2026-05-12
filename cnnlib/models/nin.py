@@ -5,9 +5,9 @@ Lin et al., "Network In Network", ICLR 2014.
 
 架构:
     Input (3, 32, 32)
-      → nin_block(3→192,   k=5) → ReLU → MaxPool(3×3, stride=2)   → (192, 15, 15)
-      → nin_block(192→160, k=5) → ReLU → MaxPool(3×3, stride=2)   → (160, 6, 6)
-      → nin_block(160→96,  k=3) → ReLU → MaxPool(3×3, stride=2)   → (96, 2, 2)
+      → nin_block(3→192,   k=5) → ReLU → MaxPool(3x3, stride=2)   → (192, 15, 15)
+      → nin_block(192→160, k=5) → ReLU → MaxPool(3x3, stride=2)   → (160, 6, 6)
+      → nin_block(160→96,  k=3) → ReLU → MaxPool(3x3, stride=2)   → (96, 2, 2)
       → nin_block(96→num_classes, k=3) → ReLU                     → (num_classes, 2, 2)
       → AdaptiveAvgPool2d(1)                                        → (num_classes, 1, 1)
       → flatten                                                     → (num_classes)

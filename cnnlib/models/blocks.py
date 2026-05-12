@@ -15,9 +15,7 @@ CNN 架构常用的可复用模块,每个模型按需取用:
 import torch
 import torch.nn as nn
 
-# ═══════════════════════════════════════════════════════════════
 # 基础块:ConvBlock / LinearBlock
-# ═══════════════════════════════════════════════════════════════
 
 
 class conv_block(nn.Module):
@@ -83,9 +81,7 @@ class linear_block(nn.Module):
         return x
 
 
-# ═══════════════════════════════════════════════════════════════
 # Inception 模块(GoogLeNet)
-# ═══════════════════════════════════════════════════════════════
 
 
 class inception_block(nn.Module):
@@ -161,9 +157,7 @@ class inception_block(nn.Module):
         return torch.cat([b1, b2, b3, b4], dim=1)
 
 
-# ═══════════════════════════════════════════════════════════════
 # NiN 模块(Network in Network)
-# ═══════════════════════════════════════════════════════════════
 
 
 class nin_block(nn.Module):
@@ -202,17 +196,15 @@ class nin_block(nn.Module):
         return self.block(x)
 
 
-# ═══════════════════════════════════════════════════════════════
 # VGG 卷积块
-# ═══════════════════════════════════════════════════════════════
 
 
 class vgg_conv(nn.Module):
     """
-    VGG 基础卷积块：Conv2d(3×3, pad=1) → BatchNorm2d → ReLU
+    VGG 基础卷积块:Conv2d(3x3, pad=1) → BatchNorm2d → ReLU
 
-    VGG 的核心设计：全部使用 3×3 卷积 + same padding，
-    空间尺寸只由 MaxPool2d(2×2) 控制，卷积本身不改变 H×W。
+    VGG 的核心设计:全部使用 3x3 卷积 + same padding,
+    空间尺寸只由 MaxPool2d(2x2) 控制,卷积本身不改变 HxW.
 
     参数:
         in_channels:  输入通道数

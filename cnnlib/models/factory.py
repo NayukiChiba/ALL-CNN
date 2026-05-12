@@ -11,7 +11,7 @@
 用法:
     from cnnlib.models.factory import create_model
 
-    model = create_model("lenet", num_classes=10, device="cuda")
+    model = create_model("lenet", num_classes=10)
     model = create_model("cnn", num_classes=10, conv_channels=[32, 64, 128])
 """
 
@@ -21,17 +21,18 @@ import torch
 import torch.nn as nn
 
 from cnnlib.registry.models import get_model_info
+from config.defaults import DefaultParams
 
 
-def _get_device(device: str = "auto") -> str:
-    """解析设备参数"""
+def _get_device(device: str) -> str:
+    """解析设备参数，将 'auto' 转为实际设备"""
     if device == "auto":
         return "cuda" if torch.cuda.is_available() else "cpu"
     return device
 
 
 def create_model(
-    name: str, num_classes: int = 10, device: str = "auto", **kwargs
+    name: str, num_classes: int = 10, device: str = DefaultParams.DEVICE, **kwargs
 ) -> nn.Module:
     """
     根据模型名称创建实例
@@ -39,7 +40,7 @@ def create_model(
     Args:
         name:        模型名称,如 "lenet", "cnn"
         num_classes: 输出类别数(从数据集注册表获取)
-        device:      "cpu", "cuda" 或 "auto"(自动检测)
+        device:      计算设备
         **kwargs:    透传给模型构造函数的额外参数
                      - cnn: conv_channels, dropout
                      - alexnet: dropout
@@ -51,9 +52,6 @@ def create_model(
     示例:
         # 基础用法
         model = create_model("lenet", num_classes=10)
-
-        # 带设备
-        model = create_model("vgg16", num_classes=100, device="cuda")
 
         # 带模型专属参数
         model = create_model("cnn", num_classes=10, conv_channels=[32, 64, 128])
@@ -77,7 +75,7 @@ def create_model(
 def create_model_for_dataset(
     model_name: str,
     dataset_name: str,
-    device: str = "auto",
+    device: str = DefaultParams.DEVICE,
     **kwargs,
 ) -> nn.Module:
     """
@@ -86,11 +84,8 @@ def create_model_for_dataset(
     Args:
         model_name:   模型名称,如 "lenet"
         dataset_name: 数据集名称,如 "cifar10"
-        device:       "cpu", "cuda" 或 "auto"
+        device:       计算设备
         **kwargs:     透传给 create_model
-
-    示例:
-        model = create_model_for_dataset("vgg16", "cifar100", device="cuda")
     """
     from cnnlib.registry.datasets import get_dataset_info
 

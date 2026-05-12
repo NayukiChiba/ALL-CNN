@@ -19,6 +19,7 @@ from cnnlib.evaluation.metrics import (
     computeTopKAccuracy,
 )
 from cnnlib.evaluation.visualize import (
+    generateAllCharts,
     plotConfusionMatrix,
     plotPerClassAccuracy,
     plotPredictions,
@@ -36,6 +37,7 @@ __all__ = [
     "computePerClassAccuracy",
     "computePrecisionRecallF1",
     # Visualization
+    "generateAllCharts",
     "plotConfusionMatrix",
     "plotPredictions",
     "plotTrainingHistory",

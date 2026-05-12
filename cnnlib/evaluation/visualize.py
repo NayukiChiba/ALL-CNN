@@ -282,3 +282,87 @@ def plotPerClassAccuracy(
         plt.close(fig)
 
     return fig
+
+
+def generateAllCharts(
+    model: nn.Module,
+    loader: DataLoader,
+    datasetInfo: Dict,
+    saveDir: str | Path,
+    history: Optional[Dict[str, List[float]]] = None,
+    classNames: Optional[Sequence[str]] = None,
+    device: str = DefaultParams.DEVICE,
+    titlePrefix: str = "",
+    precomputedMetrics: Optional[Dict] = None,
+) -> Dict:
+    """
+    生成全部评估图表（训练曲线、混淆矩阵、逐类准确率、预测样本）
+
+    Args:
+        model:             已训练的模型
+        loader:            数据加载器（通常为测试集）
+        datasetInfo:       数据集元信息 {"num_classes", "mean", "std", ...}
+        saveDir:           保存目录
+        history:           训练历史（有则出训练曲线，None 则跳过）
+        classNames:        类别名称列表
+        device:            计算设备
+        titlePrefix:       图表标题前缀
+        precomputedMetrics: 预先计算的指标（避免重复评估）
+
+    Returns:
+        评估指标字典
+    """
+    from cnnlib.evaluation.evaluator import Evaluator
+    from cnnlib.training import createLoss
+
+    saveDir = Path(saveDir)
+    saveDir.mkdir(parents=True, exist_ok=True)
+
+    # 训练曲线
+    if history and history.get("train_loss") and history.get("val_loss"):
+        plotTrainingHistory(
+            history,
+            savePath=saveDir / "training_history.png",
+            title=f"{titlePrefix}Training History",
+        )
+
+    # 评估
+    if precomputedMetrics is not None:
+        metrics = precomputedMetrics
+    else:
+        lossFn = createLoss("cross_entropy")
+        evaluator = Evaluator(
+            model, loader, lossFn, torch.device(device), datasetInfo["num_classes"]
+        )
+        metrics = evaluator.evaluate()
+
+    # 混淆矩阵
+    if "confusion_matrix" in metrics:
+        plotConfusionMatrix(
+            metrics["confusion_matrix"],
+            classNames=classNames,
+            savePath=saveDir / "confusion_matrix.png",
+            title=f"{titlePrefix}Confusion Matrix",
+        )
+
+    # 逐类准确率
+    if "per_class_accuracy" in metrics:
+        plotPerClassAccuracy(
+            metrics["per_class_accuracy"],
+            classNames=classNames,
+            savePath=saveDir / "per_class_accuracy.png",
+            title=f"{titlePrefix}Per-Class Accuracy",
+        )
+
+    # 预测样本
+    plotPredictions(
+        model,
+        loader,
+        mean=datasetInfo["mean"],
+        std=datasetInfo["std"],
+        classNames=classNames,
+        savePath=saveDir / "predictions.png",
+        device=device,
+    )
+
+    return metrics

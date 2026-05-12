@@ -111,3 +111,24 @@ def run(args: argparse.Namespace) -> None:
             f"测试集 loss={result['test_metrics']['loss']:.4f} "
             f"acc={result['test_metrics']['accuracy']:.2f}%"
         )
+
+    # 出图
+    try:
+        from cnnlib.evaluation.visualize import generateAllCharts
+        from cnnlib.registry.datasets import get_dataset_info
+        from config.paths import getVisualizationDir
+
+        datasetInfo = get_dataset_info(args.dataset)
+        visDir = getVisualizationDir(args.model, args.dataset) / "train"
+        generateAllCharts(
+            model=model,
+            loader=testLoader,
+            datasetInfo=datasetInfo,
+            saveDir=visDir,
+            history=result["history"],
+            device=str(device),
+            titlePrefix=f"{args.model}/{args.dataset} ",
+        )
+        print(f"图表已保存至: {visDir}")
+    except Exception as e:
+        print(f"  图表生成失败: {e}")

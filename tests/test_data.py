@@ -159,7 +159,7 @@ class TestDataLoader:
         if "mnist" in dataset_name:
             model = "lenet"
         else:
-            model = "nin"  # 32×32 RGB，和 CIFAR-10 匹配
+            model = "nin"  # 32x32 RGB，和 CIFAR-10 匹配
 
         train_ldr, val_ldr, test_ldr = build_dataloaders(
             model_name=model,

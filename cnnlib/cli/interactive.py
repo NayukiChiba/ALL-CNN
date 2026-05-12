@@ -413,6 +413,30 @@ class InteractiveCLI:
             _info("测试 acc", f"{result['test_metrics']['accuracy']:.2f}%")
             _info("测试 loss", f"{result['test_metrics']['loss']:.4f}")
 
+        # 出图
+        self._generateCharts(model, testLoader, result["history"], "train")
+
+    def _generateCharts(self, model, loader, history, stage: str) -> None:
+        """生成评估图表"""
+        try:
+            from cnnlib.evaluation.visualize import generateAllCharts
+            from config.paths import getVisualizationDir
+
+            datasetInfo = get_dataset_info(self.dataset)
+            visDir = getVisualizationDir(self.model, self.dataset) / stage
+            generateAllCharts(
+                model=model,
+                loader=loader,
+                datasetInfo=datasetInfo,
+                saveDir=visDir,
+                history=history,
+                device=self.device,
+                titlePrefix=f"{self.model}/{self.dataset} ",
+            )
+            _success(f"图表已保存至: {visDir}")
+        except Exception as e:
+            _warn(f"图表生成失败: {e}")
+
     def _evalWorkflow(self) -> None:
         """评估流程"""
         _printBox(f"评估: {self.model} + {self.dataset}")
@@ -438,8 +462,9 @@ class InteractiveCLI:
         import torch
 
         from cnnlib.data.loader import build_dataloaders
+        from cnnlib.evaluation.evaluator import Evaluator
         from cnnlib.models.factory import create_model_for_dataset
-        from cnnlib.training import createLoss, loadCheckpoint, validate
+        from cnnlib.training import createLoss, loadCheckpoint
 
         device = torch.device(self.device)
 
@@ -456,12 +481,23 @@ class InteractiveCLI:
             seed=42,
         )
 
+        datasetInfo = get_dataset_info(self.dataset)
         lossFn = createLoss("cross_entropy")
-        metrics = validate(model, testLoader, lossFn, device, desc="Test")
+        evaluator = Evaluator(
+            model, testLoader, lossFn, device, datasetInfo["num_classes"]
+        )
+        metrics = evaluator.evaluate()
 
         print(f"\n{_C.BOLD}  评估结果:{_C.END}")
         _info("Loss", f"{metrics['loss']:.4f}")
         _info("Accuracy", f"{metrics['accuracy']:.2f}%")
+        if "top5_accuracy" in metrics:
+            _info("Top-5 Acc", f"{metrics['top5_accuracy']:.2f}%")
+        if "macro_f1" in metrics:
+            _info("Macro F1", f"{metrics['macro_f1']:.4f}")
+
+        # 出图
+        self._generateCharts(model, testLoader, None, "eval")
 
     def _inferWorkflow(self) -> None:
         """推理流程"""

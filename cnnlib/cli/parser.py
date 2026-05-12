@@ -44,13 +44,13 @@ def _addGlobalArgs(parser: argparse.ArgumentParser) -> None:
         "--model",
         type=str,
         default="lenet",
-        help="模型名称(lenet / alexnet / vgg11~19 / nin / googlenet)",
+        help='模型名称(lenet/alexnet/vgg11~19/nin/googlenet), "all" 表示全部',
     )
     parser.add_argument(
         "--dataset",
         type=str,
         default="mnist",
-        help="数据集名称(mnist / cifar10 / cifar100 / svhn / stl10 ...)",
+        help='数据集名称(mnist/cifar10/cifar100/svhn/stl10...), "all" 表示全部',
     )
 
 
@@ -235,6 +235,12 @@ def buildParser() -> argparse.ArgumentParser:
         default=3,
         help="返回 top-K 预测",
     )
+
+    # ── benchmark ─────────────────────────────────────────
+    benchmarkParser = subparsers.add_parser("benchmark", help="基准测试")
+    _addDataArgs(benchmarkParser)
+    _addTrainingArgs(benchmarkParser)
+    _addPathArgs(benchmarkParser)
 
     return parser
 

@@ -1,0 +1,17 @@
+/* 隐藏原始 pre.mermaid，仅用作数据源 */
+pre.mermaid {
+  display: none;
+}
+
+/* 渲染后的 mermaid 图表容器 */
+div.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 1.5em 0;
+  overflow-x: auto;
+}
+
+div.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}

@@ -1,4 +1,4 @@
-# Adam 优化器
+# 优化器
 
 ## 从 SGD 出发
 
@@ -15,20 +15,46 @@ SGD 的问题：
 
 ---
 
-## 动量（Momentum）
+## 1. SGD + Momentum
+
+### 公式
 
 动量法引入一阶矩估计，给梯度加入"惯性"：
 
-$$m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t$$
+$$m_t = \beta \cdot m_{t-1} + (1 - \beta) \cdot g_t$$
+
 $$\theta_t = \theta_{t-1} - \eta \cdot m_t$$
 
-默认 $\beta_1 = 0.9$。
+默认 $\beta = 0.9$（本项目默认 momentum=0.9）。
 
-**物理直觉：** 将优化过程看作小球在损失曲面上滚动。梯度是推力，动量是速度。小球在平坦方向累积速度加速下降，在陡峭方向震荡抵消。
+### 物理直觉
+
+将优化过程看作小球在损失曲面上滚动。梯度是推力，动量是速度。小球在平坦方向累积速度加速下降，在陡峭方向震荡抵消。
+
+### 本项目的 SGD 实现
+
+**源码**: [cnnlib/training/optimizer.py:28-32](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/training/optimizer.py#L28-L32)
+
+```python
+def _buildSGD(model, lr, weightDecay, **kw):
+    momentum = kw.pop("momentum", 0.9)
+    return SGD(model.parameters(), lr=lr, momentum=momentum,
+               weight_decay=weightDecay, **kw)
+```
+
+### 优点与缺点
+
+| 优点 | 缺点 |
+|------|------|
+| 收敛方向更平滑 | 仍需手工调学习率 |
+| 积累速度穿越平坦区域 | 对所有参数统一学习率 |
+| 在 CV 竞赛中泛化通常更好 | 收敛慢于 Adam（特别是稀疏梯度场景） |
 
 ---
 
-## 自适应学习率：RMSprop
+## 2. RMSprop
+
+### 公式
 
 不同参数需要不同学习率。RMSprop 维护梯度的二阶矩（方差）估计：
 
@@ -38,15 +64,27 @@ $$v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2$$
 
 $$\theta_t = \theta_{t-1} - \eta \cdot \frac{g_t}{\sqrt{v_t} + \epsilon}$$
 
-默认 $\beta_2 = 0.999$，$\epsilon = 10^{-8}$。
+默认 $\beta_2 = 0.99$，$\epsilon = 10^{-8}$。
 
-**效果：** 梯度波动大的参数自动获得更小的有效学习率；梯度稳定小的参数获得更大的有效学习率。
+### 效果
+
+梯度波动大的参数自动获得更小的有效学习率；梯度稳定小的参数获得更大的有效学习率。对 RNN 和非平稳目标特别有效。
+
+### 本项目的 RMSprop 实现
+
+**源码**: [cnnlib/training/optimizer.py:35-38](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/training/optimizer.py#L35-L38)
+
+```python
+def _buildRMSprop(model, lr, weightDecay, **kw):
+    return RMSprop(model.parameters(), lr=lr,
+                   weight_decay=weightDecay, **kw)
+```
 
 ---
 
-## Adam：动量 + 自适应 = 两者之长
+## 3. Adam：动量 + 自适应 = 两者之长
 
-Adam（Adaptive Moment Estimation）结合动量（一阶矩）和 RMSprop（二阶矩）：
+Adam（Adaptive Moment Estimation）结合动量（一阶矩）和 RMSprop（二阶矩）。
 
 ### 完整算法
 
@@ -62,6 +100,7 @@ v_t &= \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
 $m_t$ 和 $v_t$ 初始化为 0，导致训练初期估计偏小。Adam 对矩估计做偏差校正：
 
 $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}$$
+
 $$\hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
 
 随着 $t \to \infty$，$\beta_1^t \to 0$，校正因子趋于 1。
@@ -70,80 +109,117 @@ $$\hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
 
 $$\theta_t = \theta_{t-1} - \eta \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
 
-**解读：**
+**解读**：
 - $\hat{m}_t$ 提供带惯性的方向（动量）
 - $1/\sqrt{\hat{v}_t}$ 提供逐参数的自适应步长缩放
 - $\epsilon = 10^{-8}$ 防止除零
 
-### 本项目的超参数
+### 本项目的 Adam 实现
 
-| 参数 | 值 | 源码位置 |
-|------|-----|---------|
-| $\eta$ (lr) | 0.001 | `config/default_params.py:63` |
-| $\beta_1$ | 0.9 | PyTorch 默认 |
-| $\beta_2$ | 0.999 | PyTorch 默认 |
-| $\epsilon$ | 10⁻⁸ | PyTorch 默认 |
+**源码**: [cnnlib/training/optimizer.py:18-20](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/training/optimizer.py#L18-L20)
 
----
-
-## Weight Decay（L2 正则化）
-
-在损失函数中附加参数范数惩罚：
-
-$$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CE}} + \lambda \cdot \frac{1}{2}\sum \theta_i^2$$
-
-梯度变为：
-
-$$\frac{\partial \mathcal{L}_{\text{total}}}{\partial \theta} = g_t + \lambda \cdot \theta$$
-
-Adam 的 weight decay 实现（[src/train/optimizer.py:29-33](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/train/optimizer.py#L29-L33)，`weight_decay=1e-4`）将 $\lambda\theta$ 项从梯度中解耦（AdamW 风格），效果等价但优化轨迹更好。
-
-**作用：** 鼓励所有权重趋于小值，防止模型过度依赖少数强特征，提升泛化能力。
-
----
-
-## 学习率调度：ReduceLROnPlateau
-
-不是调优化器，而是调学习率。当验证损失不再下降时，减半学习率：
-
-$$\eta_{\text{new}} = \eta_{\text{old}} \times 0.5$$
-
-触发条件：验证损失在连续 `patience=3` 个 epoch 内没有改善（[src/train/optimizer.py:51-86](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/train/optimizer.py#L51-L86)）。
-
-**为什么需要？** 训练后期大学习率会在最优解附近震荡跳过去。逐渐缩小学习率让优化在小邻域内精细搜素。
-
-**下限保护：** `min_lr=1e-6`，防止学习率过小导致训练停滞。
-
-**示例轨迹：**
-
-```
-Epoch  1: lr = 0.001
-Epoch  5: val_loss 连续 3 epoch 不降 → lr = 0.0005
-Epoch 10: val_loss 连续 3 epoch 不降 → lr = 0.00025
-Epoch 14: val_loss 连续 3 epoch 不降 → lr = 0.000125
-...
-Epoch 20: lr 降至 1e-6 后不再降低
+```python
+def _buildAdam(model, lr, weightDecay, **kw):
+    betas = kw.pop("betas", (0.9, 0.999))
+    return Adam(model.parameters(), lr=lr, weight_decay=weightDecay,
+                betas=betas, **kw)
 ```
 
----
+### 超参数
 
-## SGD vs Adam 对比
-
-| | SGD+Momentum | Adam |
-|---|---|---|
-| 学习率 | 全局统一，需手工调参 | 逐参数自适应 |
-| 收敛速度 | 慢 | 快（特别是稀疏梯度场景） |
-| 泛化能力 | 可能更好（隐式正则） | 通常在训练集上更好 |
-| 适用场景 | 大 batch、CV 竞赛 | 快速原型、中小规模 |
-| 额外内存 | 1x (动量) | 2x (一阶 + 二阶矩) |
-
-对于 MNIST 这种相对简单的任务，Adam 可以在 5-10 个 epoch 内达到 99%+ 准确率，远快于 SGD。
+| 参数 | 默认值 | 说明 |
+|------|:---:|------|
+| $\eta$ (lr) | 0.001 | 初始学习率 |
+| $\beta_1$ | 0.9 | 一阶矩衰减系数 |
+| $\beta_2$ | 0.999 | 二阶矩衰减系数 |
+| $\epsilon$ | $10^{-8}$ | 数值稳定项 |
+| weight_decay | $10^{-4}$ | 权重衰减（L2 正则） |
 
 ---
 
-## 源码位置
+## 4. AdamW：解耦 Weight Decay
 
-- Adam 创建：`src/train/optimizer.py:19-48`
-- ReduceLROnPlateau 创建：`src/train/optimizer.py:51-86`
-- 超参数默认值：`config/default_params.py:58-75`
-- 训练循环中调用 scheduler.step()：`scripts/train.py:149`
+### 为什么需要 AdamW
+
+在标准 Adam 中，L2 正则化通过将 $\lambda \theta$ 加到梯度 $g_t$ 中实现。但 Adam 的自适应学习率 $1/\sqrt{\hat{v}_t}$ 也会作用于 $\lambda\theta$ 项——导致不同参数的正则化强度不一致。
+
+**AdamW** (Loshchilov & Hutter, 2019) 将 Weight Decay 从梯度更新中解耦，直接在权重上施加衰减：
+
+$$\theta_t = \theta_{t-1} - \eta \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} - \eta \lambda \cdot \theta_{t-1}$$
+
+注意最后一项 $-\eta\lambda \cdot \theta_{t-1}$ 是独立于 $m_t$ 和 $v_t$ 的权重衰减。
+
+### Adam vs AdamW 的更新差异
+
+$$\begin{aligned}
+\text{Adam (L2 reg):} \quad & \theta_t = \theta_{t-1} - \eta \cdot \frac{\hat{m}_t + \lambda\theta_{t-1}}{\sqrt{\hat{v}_t} + \epsilon} \\[4pt]
+\text{AdamW (decoupled):} \quad & \theta_t = \theta_{t-1} - \eta \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} - \eta\lambda \cdot \theta_{t-1}
+\end{aligned}$$
+
+在 Adam 中，$\lambda\theta$ 被 $\sqrt{\hat{v}_t}$ 缩放；在 AdamW 中，衰减与自适应学习率无关。
+
+### 本项目的 AdamW 实现
+
+**源码**: [cnnlib/training/optimizer.py:23-25](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/training/optimizer.py#L23-L25)
+
+```python
+def _buildAdamW(model, lr, weightDecay, **kw):
+    betas = kw.pop("betas", (0.9, 0.999))
+    return AdamW(model.parameters(), lr=lr, weight_decay=weightDecay,
+                 betas=betas, **kw)
+```
+
+**默认 weight_decay = 1e-4**。
+
+---
+
+## 四种优化器对比
+
+
+
+| | SGD+Momentum | RMSprop | Adam | AdamW |
+|---|:---:|:---:|:---:|:---:|
+| 一阶矩（动量） | ✓ | ✗ | ✓ | ✓ |
+| 二阶矩（自适应 LR） | ✗ | ✓ | ✓ | ✓ |
+| 偏差校正 | ✗ | ✗ | ✓ | ✓ |
+| Weight Decay 方式 | 加到梯度 | 加到梯度 | 加到梯度（PyTorch 已修正） | 解耦（Decoupled） |
+| 额外内存 | 1× | 1× | 2× | 2× |
+| 收敛速度 | 慢 | 中 | 快 | 快 |
+| 泛化能力 | 可能最好 | 中 | 通常较好 | 通常最好（含 WD） |
+| 推荐场景 | 大 batch CV 竞赛 | RNN/强化学习 | 快速原型 | **默认推荐** |
+
+---
+
+## 本项目的优化器工厂
+
+**源码**: [cnnlib/training/optimizer.py:49-75](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/training/optimizer.py#L49-L75)
+
+```python
+def createOptimizer(model, name="adam", lr=0.001, weight_decay=0.0, **kwargs):
+    """
+    name: adam / adamw / sgd / rmsprop
+    """
+    # 查表返回对应优化器实例
+```
+
+CLI 使用: `python main.py train --optimizer adamw --lr 0.001 --weight-decay 1e-4`
+
+---
+
+## 优化器选择建议
+
+| 场景 | 推荐 | 原因 |
+|------|------|------|
+| 快速实验/原型 | Adam | 默认参数通常 work，无需调参 |
+| 正式训练/追求最优 | AdamW | 解耦 weight decay，泛化更好 |
+| 大 batch 训练 | SGD+Momentum | 大 batch 下自适应方法优势减弱 |
+| 特殊任务（RL/RNN） | RMSprop | 非平稳目标场景更稳定 |
+
+---
+
+## 相关文档
+
+- [学习率调度器](/math/schedulers) — ReduceLROnPlateau、StepLR、Cosine 等
+- [L1/L2/Weight Decay](/math/regularization) — Weight Decay 的数学基础
+- [梯度裁剪](/math/gradient-clipping) — 防止梯度爆炸的最后防线
+- [训练流程](/architecture/training) — optimizer.step() 在训练循环中的位置

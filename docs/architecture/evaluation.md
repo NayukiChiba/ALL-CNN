@@ -2,22 +2,59 @@
 
 ## 评估流水线概览
 
-[scripts/eval.py:27-132](https://github.com/NayukiChiba/MNIST-CNN/blob/main/scripts/eval.py#L27-L132) 中的评估脚本执行：
+ALL-CNN 的评估系统（[cnnlib/evaluation/](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/evaluation/)）执行：
 
 ```
-1. 加载 test DataLoader
-2. 从检查点加载 model（仅权重，不含 optimizer）
-3. evaluateModel() → 损失/准确率/混淆矩阵/分类报告
-4. 格式化报告打印
-5. 保存 eval_results.json
-6. 生成可视化图表
+1. 加载 test DataLoader          — build_dataloaders(augment=False)
+2. 从检查点加载 model             — loadCheckpoint(optimizer=None)
+3. 收集预测                       — gatherPredictions()
+4. 计算指标                       — accuracy + confusionMatrix + per-class report
+5. 格式化报告打印                  — formatReport()
+6. 生成可视化图表                  — generateAllCharts()
+7. 保存 eval_results.json
+```
+
+---
+
+## Evaluator 类
+
+**源码**: [cnnlib/evaluation/evaluator.py](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/evaluation/evaluator.py)
+
+```python
+class Evaluator:
+    def __init__(self, model, loader, criterion=None, device="cpu"):
+        ...
+
+    def evaluate(self) -> Dict:
+        """
+        Returns:
+            {
+                "loss": float,           # 仅 criterion 非 None
+                "accuracy": float,
+                "top5_accuracy": float,
+                "confusion_matrix": Tensor (num_classes × num_classes),
+                "report": {              # per-class metrics
+                    "precision": List[float],
+                    "recall": List[float],
+                    "f1": List[float],
+                    "support": List[int],
+                    "macro_precision": float,
+                    "macro_recall": float,
+                    "macro_f1": float,
+                },
+                "predictions": Tensor,
+                "probabilities": Tensor,
+                "labels": Tensor,
+                "num_samples": int,
+            }
+        """
 ```
 
 ---
 
 ## 收集预测：gatherPredictions
 
-[gatherPredictions()](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L32-L106) 是整个评估的基础：
+**源码**: [cnnlib/evaluation/metrics.py](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/evaluation/metrics.py)
 
 ```python
 @torch.no_grad()
@@ -37,58 +74,58 @@ def gatherPredictions(model, dataloader, device):
 
     return (torch.cat(allLabels),
             torch.cat(allPredictions),
-            torch.cat(allProbs))               # 全部在 CPU 上
+            torch.cat(allProbs))
 ```
 
-- `@torch.no_grad()` 确保不计算梯度，节省显存
+- `@torch.no_grad()` 禁用梯度计算，节省显存
 - 结果全部收集到 CPU，后续计算不需要 GPU
-- 除预测类别外也收集概率，便于后续分析（如置信度分布）
+- 同时收集概率以供置信度分析
 
 ---
 
 ## 混淆矩阵：computeConfusionMatrix
 
-[computeConfusionMatrix()](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L109-L146)：
-
-```python
-def computeConfusionMatrix(labels, predictions, num_classes=10):
-    # 向量化：使用 torch.histogramdd，无显式循环
-    indices = torch.stack([labels, predictions], dim=1)
-    bins = [num_classes, num_classes]
-    cm = torch.histogramdd(indices.float(), bins=bins).hist
-    return cm.long()
-```
+使用 `torch.histogramdd` 向量化计算：
 
 $$\text{CM}[i, j] = \#\{\text{样本}: \text{真实类别} = i, \text{预测类别} = j\}$$
 
-矩阵对角线上的值表示正确分类的样本数。
-
-**实现技巧：** 使用 `torch.histogramdd` 而非 Python 循环。10 个类别的双重 for 循环是 100 次迭代；histogramdd 是一次 C 级别的向量化运算。
+矩阵对角线为正确分类数；非对角线为各类混淆情况。
 
 ---
 
 ## 分类报告：classificationReport
 
-[classificationReport()](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L149-L251) 从混淆矩阵计算 per-class 指标：
+从混淆矩阵计算 per-class 指标：
 
-对每个类别 $c \in \{0, \dots, 9\}$：
+对每个类别 $c$：
 
 $$\text{TP}_c = \text{CM}[c, c]$$
+
 $$\text{FP}_c = \sum_{i \neq c} \text{CM}[i, c]$$
+
 $$\text{FN}_c = \sum_{j \neq c} \text{CM}[c, j]$$
+
 $$\text{Precision}_c = \frac{\text{TP}_c}{\text{TP}_c + \text{FP}_c}$$
+
 $$\text{Recall}_c = \frac{\text{TP}_c}{\text{TP}_c + \text{FN}_c}$$
+
 $$\text{F1}_c = 2 \cdot \frac{\text{Precision}_c \cdot \text{Recall}_c}{\text{Precision}_c + \text{Recall}_c}$$
 
-**宏平均（Macro Average）：** 简单平均所有类别的指标（不受各类别样本数影响）：
+### 宏平均 (Macro Average)
 
-$$\text{Macro F1} = \frac{1}{10} \sum_{c=0}^{9} \text{F1}_c$$
+简单平均所有类别的指标（不受类别样本数影响）：
 
-**边角情况处理：** `precision_c` 和 `recall_c` 的分母可能为 0（某类别从未被预测或从未出现在数据中）。此时返回 0.0（[metrics.py:199-203](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L199-L203)）。
+$$\text{Macro F1} = \frac{1}{K} \sum_{c=0}^{K-1} \text{F1}_c$$
 
-### 格式化输出
+### Top-K 准确率
 
-[formatReport()](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L371-L410) 产出类似于 sklearn 风格的格式化字符串：
+$$\text{Top-K Acc} = \frac{\#\{\text{真实类别在预测的 top-K 中}\}}{\text{总样本数}}$$
+
+---
+
+## 格式化输出
+
+输出类似于 sklearn 风格的报告：
 
 ```
 Classification Report
@@ -101,84 +138,39 @@ Class    Precision    Recall    F1-score    Support
 --------------------------------------------------
 Macro Avg  0.9912    0.9910    0.9911      10000
 Accuracy: 0.9910
-```
-
----
-
-## 一键评估：evaluateModel
-
-[evaluateModel()](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/metrics.py#L259-L363) 将以上步骤打包为一次调用：
-
-```python
-def evaluateModel(model, dataloader, criterion=None, device=None):
-    # 1. 收集预测
-    labels, predictions, probabilities = gatherPredictions(...)
-
-    # 2. 混淆矩阵
-    cm = computeConfusionMatrix(labels, predictions)
-
-    # 3. Per-class 报告
-    report = classificationReport(labels, predictions)
-
-    # 4. 准确率
-    accuracy = (predictions == labels).float().mean().item()
-
-    return {
-        "loss": loss,           # 仅当提供 criterion 时计算
-        "accuracy": accuracy,
-        "confusion_matrix": cm,
-        "report": report,
-        "num_samples": len(labels),
-    }
+Top-5 Acc: 0.9997
 ```
 
 ---
 
 ## 可视化
 
-所有可视化函数位于 [src/eval/visualize.py](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py)。
+**源码**: [cnnlib/evaluation/visualize.py](https://github.com/NayukiChiba/ALL-CNN/blob/main/cnnlib/evaluation/visualize.py)
 
-### 训练曲线：plotTrainingCurves
+### 生成的图表
 
-[visualize.py:65-184](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L65-L184)
+| 图表 | 函数 | 内容 |
+|------|------|------|
+| 训练曲线 | `plotTrainingCurves()` | 双子图：loss + accuracy 曲线 |
+| 混淆矩阵 | `plotConfusionMatrix()` | 热力图，每格标注归一化比例 |
+| 错误样本 | `plotErrorGrid()` | 分类错误的样本网格 |
+| 预测示例 | `plotPredictionDemo()` | 随机 20 张图预测结果 |
 
-双子图布局：左图显示 train + val 损失曲线，右图显示 train + val 准确率曲线。最佳 epoch 用虚线标注：
+### 批量生成：generateAllCharts
 
-![训练曲线](/visualizations/training_curves.png)
+```python
+def generateAllCharts(model, loader, datasetInfo, saveDir,
+                       history=None, device="cpu", titlePrefix=""):
+    # 一键生成全部图表并保存到 saveDir
+```
 
-### 混淆矩阵热力图：plotConfusionMatrix
+### 反归一化
 
-[visualize.py:192-320](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L192-L320)
+可视化时需要将标准化后的张量还原为可视图像：
 
-用 `imshow` 渲染混淆矩阵热力图，每个格子标注归一化后的比例：
+$$\text{image} = \text{tensor} \times \text{std} + \text{mean}$$
 
-![混淆矩阵](/visualizations/confusion_matrix.png)
-
-### 错误样本网格：plotErrorGrid
-
-[visualize.py:328-467](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L328-L467)
-
-展示模型分类错误的样本，红色标题标注真实类别与错误预测：
-
-![错误样本](/visualizations/error_grid.png)
-
-### 预测示例
-
-从测试集随机抽取 20 张图展示预测结果，绿色为正确、红色为错误：
-
-![预测示例](/visualizations/prediction_demo.png)
-
-**反归一化**（[visualize.py:431-436](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L431-L436)）：
-
-$$\text{image} = \text{tensor} \times 0.3081 + 0.1307$$
-
-### 收集错误样本：gatherErrorSamples
-
-[visualize.py:475-549](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L475-L549) 遍历 DataLoader 收集最多 `max_errors` 个错误分类的样本及其真实/预测标签。
-
-### 批量生成：generateEvaluationPlots
-
-[visualize.py:557-636](https://github.com/NayukiChiba/MNIST-CNN/blob/main/src/eval/visualize.py#L557-L636) 一键生成全部图表并保存到 `visualizations/`。
+不同数据集使用各自的 mean/std（从注册表读取）。
 
 ---
 
@@ -186,8 +178,20 @@ $$\text{image} = \text{tensor} \times 0.3081 + 0.1307$$
 
 ```bash
 # 基本评估
-python main.py eval --checkpoint checkpoints/best_model.pth
+python main.py --model lenet --dataset mnist eval \
+    --checkpoint checkpoints/best_model.pth
 
 # 跳过可视化（只输出文本报告）
-python main.py eval --checkpoint checkpoints/best_model.pth --no-visualize
+python main.py --model vgg16 --dataset cifar10 eval \
+    --checkpoint checkpoints/best_model.pth --no-visualize
 ```
+
+---
+
+## 相关文档
+
+- [评估与指标](/architecture/evaluation) — 本文
+- [损失函数](/math/loss-function) — CrossEntropy 推导
+- [Softmax](/math/softmax) — logits → 概率
+- [训练流程](/architecture/training) — 如何训练得到 checkpoint
+- [基准测试系统](/architecture/benchmark) — 自动化评测

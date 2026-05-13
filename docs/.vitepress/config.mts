@@ -6,14 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: 'ALL-CNN 文档',
+  title: 'CNN 文档',
   description: '8 种经典 CNN 架构 x 10 个数据集 | PyTorch 实现 | 数学原理与工程架构',
-  base: '/ALL-CNN/',
+  base: '/CNN/',
   cleanUrls: true,
   lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/ALL-CNN/favicon.ico' }],
+    ['link', { rel: 'icon', href: '/CNN/favicon.ico' }],
   ],
 
   markdown: {
@@ -212,7 +212,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/NayukiChiba/ALL-CNN' },
+      { icon: 'github', link: 'https://github.com/NayukiChiba/CNN' },
     ],
 
     footer: {
@@ -220,7 +220,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/NayukiChiba/ALL-CNN/edit/main/docs/:path',
+      pattern: 'https://github.com/NayukiChiba/CNN/edit/main/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
 

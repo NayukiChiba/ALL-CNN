@@ -11,6 +11,8 @@ from config.paths import (
     ROOT_DIR,
     VISUALIZATIONS_DIR,
     ensureDir,
+    getBenchmarkResultPath,
+    getBenchmarkSummaryPath,
     getBestModelPath,
     getCheckpointDir,
     getLastModelPath,
@@ -34,6 +36,8 @@ __all__ = [
     "LAST_MODEL_PATH",
     # 运行时路径函数
     "ensureDir",
+    "getBenchmarkResultPath",
+    "getBenchmarkSummaryPath",
     "getCheckpointDir",
     "getBestModelPath",
     "getLastModelPath",

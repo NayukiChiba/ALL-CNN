@@ -12,7 +12,6 @@
 """
 
 import json
-import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -33,7 +32,13 @@ from cnnlib.training import (
     createScheduler,
 )
 from config.defaults import DefaultParams
-from config.paths import ensureDir
+from config.paths import (
+    ensureDir,
+    getBenchmarkResultPath,
+    getBenchmarkSummaryPath,
+    getCheckpointDir,
+    getLogDir,
+)
 
 
 def _countParams(model: nn.Module) -> int:
@@ -136,28 +141,27 @@ def runBenchmark(
     optimizer = createOptimizer(model, "adam", lr=0.001, weight_decay=1e-4)
     scheduler = createScheduler(optimizer, "plateau", factor=0.5, patience=2)
 
-    with tempfile.TemporaryDirectory() as tmp:
-        ckptDir = Path(tmp) / "checkpoints"
-        logDir = Path(tmp) / "logs"
-        logger = TrainingLogger(logDir, modelName, datasetName)
-        es = EarlyStopping(patience=5)
+    ckptDir = ensureDir(getCheckpointDir(modelName, datasetName))
+    logDir = ensureDir(getLogDir(modelName, datasetName))
+    logger = TrainingLogger(logDir, modelName, datasetName)
+    es = EarlyStopping(patience=5)
 
-        trainer = Trainer(
-            model=model,
-            trainLoader=trainLoader,
-            valLoader=valLoader,
-            testLoader=testLoader,
-            optimizer=optimizer,
-            scheduler=scheduler,
-            lossFn=lossFn,
-            device=deviceObj,
-            epochs=epochs,
-            checkpointDir=ckptDir,
-            logger=logger,
-            earlyStopping=es,
-        )
+    trainer = Trainer(
+        model=model,
+        trainLoader=trainLoader,
+        valLoader=valLoader,
+        testLoader=testLoader,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        lossFn=lossFn,
+        device=deviceObj,
+        epochs=epochs,
+        checkpointDir=ckptDir,
+        logger=logger,
+        earlyStopping=es,
+    )
 
-        trainResult = trainer.train()
+    trainResult = trainer.train()
 
     result["best_val_acc"] = trainResult["best_metric"]
     result["best_epoch"] = trainResult["best_epoch"]
@@ -189,11 +193,15 @@ def runBenchmark(
 
     # 保存结果（不含 history，JSON 太大）
     if outputDir is not None:
-        outputDir = ensureDir(Path(outputDir))
-        outputFile = outputDir / f"{modelName}_{datasetName}.json"
-        saveResult = {k: v for k, v in result.items() if k != "history"}
-        with open(outputFile, "w", encoding="utf-8") as f:
-            json.dump(saveResult, f, ensure_ascii=False, indent=2)
+        outputPath = (
+            ensureDir(Path(outputDir) / modelName / datasetName) / "result.json"
+        )
+    else:
+        outputPath = getBenchmarkResultPath(modelName, datasetName)
+        ensureDir(outputPath.parent)
+    saveResult = {k: v for k, v in result.items() if k != "history"}
+    with open(outputPath, "w", encoding="utf-8") as f:
+        json.dump(saveResult, f, ensure_ascii=False, indent=2)
 
     return result
 
@@ -258,11 +266,11 @@ def runAllBenchmarks(
                 continue
 
     # 汇总表
-    _printSummary(results, outputDir)
+    _printSummary(results)
     return results
 
 
-def _printSummary(results: List[Dict], outputDir: Optional[str | Path] = None) -> None:
+def _printSummary(results: List[Dict]) -> None:
     """打印基准测试汇总表"""
     if not results:
         print("\n无有效结果")
@@ -287,12 +295,11 @@ def _printSummary(results: List[Dict], outputDir: Optional[str | Path] = None) -
 
     print("-" * 100)
 
-    if outputDir:
-        outputDir = Path(outputDir)
-        summaryFile = outputDir / "benchmark_summary.json"
-        with open(summaryFile, "w", encoding="utf-8") as f:
-            json.dump(results, f, ensure_ascii=False, indent=2)
-        print(f"\n汇总已保存至: {summaryFile}")
+    summaryPath = getBenchmarkSummaryPath()
+    ensureDir(summaryPath.parent)
+    with open(summaryPath, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    print(f"\n汇总已保存至: {summaryPath}")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -474,13 +481,11 @@ if __name__ == "__main__":
     print(f"设备: {device}")
 
     if len(sys.argv) > 1 and sys.argv[1] == "--all":
-        runAllBenchmarks(device=device, epochs=3, outputDir="outputs/benchmarks/")
+        runAllBenchmarks(device=device, epochs=3)
     elif len(sys.argv) > 1:
         model = sys.argv[1]
         dataset = sys.argv[2] if len(sys.argv) > 2 else "cifar10"
-        runBenchmark(
-            model, dataset, device=device, epochs=3, outputDir="outputs/benchmarks/"
-        )
+        runBenchmark(model, dataset, device=device, epochs=3)
     else:
         print("用法:")
         print("  单组: python -m cnnlib.experiments.benchmark <model> <dataset>")

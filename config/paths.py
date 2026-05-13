@@ -27,7 +27,7 @@ DATASETS_DIR = ROOT_DIR / "datasets"
 CHECKPOINTS_DIR = ROOT_DIR / "checkpoints"
 OUTPUTS_DIR = ROOT_DIR / "outputs"
 LOGS_DIR = ROOT_DIR / "logs"
-VISUALIZATIONS_DIR = ROOT_DIR / "visualizations"
+VISUALIZATIONS_DIR = OUTPUTS_DIR / "visualizations"
 
 # 向后兼容（新代码请用 getBestModelPath / getLastModelPath）
 BEST_MODEL_PATH = CHECKPOINTS_DIR / "best_model.pth"
@@ -46,23 +46,33 @@ def ensureDir(path: Path) -> Path:
 
 
 def getCheckpointDir(model: str, dataset: str) -> Path:
-    """checkpoints/{model}/{dataset}/"""
-    return CHECKPOINTS_DIR / model / dataset
+    """outputs/{model}/{dataset}/checkpoints/"""
+    return OUTPUTS_DIR / model / dataset / "checkpoints"
 
 
 def getBestModelPath(model: str, dataset: str) -> Path:
-    """checkpoints/{model}/{dataset}/best_model.pth"""
+    """outputs/{model}/{dataset}/checkpoints/best_model.pth"""
     return getCheckpointDir(model, dataset) / "best_model.pth"
 
 
 def getLastModelPath(model: str, dataset: str) -> Path:
-    """checkpoints/{model}/{dataset}/last_model.pth"""
+    """outputs/{model}/{dataset}/checkpoints/last_model.pth"""
     return getCheckpointDir(model, dataset) / "last_model.pth"
 
 
 def getOutputDir(model: str, dataset: str) -> Path:
     """outputs/{model}/{dataset}/"""
     return OUTPUTS_DIR / model / dataset
+
+
+def getBenchmarkResultPath(model: str, dataset: str) -> Path:
+    """outputs/{model}/{dataset}/result.json"""
+    return getOutputDir(model, dataset) / "result.json"
+
+
+def getBenchmarkSummaryPath() -> Path:
+    """outputs/benchmark_summary.json"""
+    return OUTPUTS_DIR / "benchmark_summary.json"
 
 
 def getLogDir(model: str, dataset: str) -> Path:
@@ -77,7 +87,7 @@ def getTensorboardDir(model: str, dataset: str) -> Path:
 
 def getVisualizationDir(model: str, dataset: str) -> Path:
     """visualizations/{model}/{dataset}/"""
-    return VISUALIZATIONS_DIR / model / dataset
+    return OUTPUTS_DIR / model / dataset / "visualizations"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -91,7 +101,6 @@ if __name__ == "__main__":
     print(f"CHECKPOINTS:       {CHECKPOINTS_DIR}")
     print(f"OUTPUTS:           {OUTPUTS_DIR}")
     print(f"LOGS:              {LOGS_DIR}")
-    print(f"VISUALIZATIONS:    {VISUALIZATIONS_DIR}")
     print()
     print(f"BEST_MODEL_PATH:   {BEST_MODEL_PATH}")
     print(f"LAST_MODEL_PATH:   {LAST_MODEL_PATH}")

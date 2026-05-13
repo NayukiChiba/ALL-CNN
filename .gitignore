@@ -380,3 +380,4 @@ tmp/
 temp/
 debug/
 release/
+!docs/datasets

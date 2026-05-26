@@ -34,9 +34,9 @@ torchaudio = { index = "pytorch-cu128-original" }
 
 # --------------- 项目信息配置 ---------------
 [project]
-name = "mnist-cnn" # 这里需要设置为你的项目名称，通常与包名相同
-version = "0.1.0"
-description = "A simple CNN for MNIST digit classification" # 这里需要设置为你的项目描述，简要说明项目的功能和用途
+name = "all-cnn"
+version = "0.2.0"
+description = "经典 CNN 架构学习项目，支持多模型多数据集自由组合训练"
 requires-python = ">=3.11"
 readme = "README.md"
 authors = [
